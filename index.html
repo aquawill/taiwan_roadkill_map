@@ -49,6 +49,10 @@
             var geocoder = platform.getGeocodingService();
             var router = platform.getRoutingService();
             var pixelRatio = window.devicePixelRatio || 1;
+            var width = screen.width;
+            var height = screen.height;
+            var screenRatio = screen.width / screen.height;
+            console.log(screenRatio);
             var defaultLayers = platform.createDefaultLayers({
                 tileSize: 512,
                 ppi: ppi,
@@ -74,44 +78,46 @@
                     lat: 23.749408835677244,
                     lng: 121.00495296263927
                 },
-                zoom: 8,
+                zoom: screenRatio > 1 ? 8 : 7,
                 pixelRatio: pixelRatio
             });
             var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
-            //            navigator.geolocation.getCurrentPosition(function(location) {
-            //                var gps_location_marker = new H.map.Circle({
-            //                    lat: location.coords.latitude,
-            //                    lng: location.coords.longitude
-            //                }, 5, {
-            //                    style: {
-            //                        strokeColor: 'rgba(245, 117, 249, 0.3)',
-            //                        lineWidth: 1,
-            //                        fillColor: 'rgba(184, 197, 252, 0.5)'
-            //                    }
-            //                });
-            //                var gps_location_marker_radius = new H.map.Circle({
-            //                    lat: location.coords.latitude,
-            //                    lng: location.coords.longitude
-            //                }, location.coords.accuracy, {
-            //                    style: {
-            //                        strokeColor: 'rgba(245, 117, 249, 0.3)',
-            //                        lineWidth: 1,
-            //                        fillColor: 'rgba(250, 184, 252, 0.3)'
-            //                    }
-            //                });
-            //                gps_location_marker_radius.setZIndex(0);
-            //                gps_location_marker.setZIndex(10);
-            //                map.addObject(gps_location_marker_radius);
-            //                map.addObject(gps_location_marker);
-            //                map.setCenter({
-            //                    lat: location.coords.latitude,
-            //                    lng: location.coords.longitude
-            //                });
-            //                rev_geocoder({
-            //                    lat: location.coords.latitude,
-            //                    lng: location.coords.longitude
-            //                });
-            //            });
+
+            function position_locator() {
+                navigator.geolocation.getCurrentPosition(function(location) {
+                    var gps_location_marker = new H.map.Circle({
+                        lat: location.coords.latitude,
+                        lng: location.coords.longitude
+                    }, 5, {
+                        style: {
+                            strokeColor: 'rgba(245, 117, 249, 0.3)',
+                            lineWidth: 1,
+                            fillColor: 'rgba(184, 197, 252, 0.5)'
+                        }
+                    });
+                    var gps_location_marker_radius = new H.map.Circle({
+                        lat: location.coords.latitude,
+                        lng: location.coords.longitude
+                    }, location.coords.accuracy, {
+                        style: {
+                            strokeColor: 'rgba(245, 117, 249, 0.3)',
+                            lineWidth: 1,
+                            fillColor: 'rgba(250, 184, 252, 0.3)'
+                        }
+                    });
+                    gps_location_marker_radius.setZIndex(0);
+                    gps_location_marker.setZIndex(10);
+                    map.addObject(gps_location_marker_radius);
+                    map.addObject(gps_location_marker);
+                    map.setCenter({
+                        lat: location.coords.latitude,
+                        lng: location.coords.longitude
+                    });
+                    map.setZoom(13, true);
+                });
+            }
+
+
             activate_cht_map(map, platform);
             var ui = H.ui.UI.createDefault(map, defaultLayers);
             ui.removeControl('mapsettings');
@@ -133,12 +139,12 @@
 
             var iconOptions = {
                 size: {
-                    w: pixelRatio === 1 ? 24 : 48,
-                    h: pixelRatio === 1 ? 24 : 48
+                    w: pixelRatio === 1 ? 36 : 24,
+                    h: pixelRatio === 1 ? 36 : 24
                 },
                 anchor: {
-                    x: pixelRatio === 1 ? 12 : 24,
-                    y: pixelRatio === 1 ? 12 : 24
+                    x: pixelRatio === 1 ? 18 : 12,
+                    y: pixelRatio === 1 ? 18 : 12
                 }
             };
 
@@ -147,52 +153,52 @@
                 switch (type) {
                     case '鳥類':
                         if (dayNight == '晚上') {
-                            iconName = './img/ic_bird_night.svg'
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_bird_night.svg'
                         } else {
-                            iconName = './img/ic_bird_day.svg'
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_bird_day.svg'
                         }
                         break;
                     case '哺乳類':
                         if (dayNight == '晚上') {
-                            iconName = './img/ic_mammal_night.svg'
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_mammal_night.svg'
                         } else {
-                            iconName = './img/ic_mammal_day.svg'
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_mammal_day.svg'
                         }
                         break;
                     case '兩生類':
                         if (dayNight == '晚上') {
-                            iconName = './img/ic_frog_night.svg'
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_frog_night.svg'
                         } else {
-                            iconName = './img/ic_frog_day.svg'
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_frog_day.svg'
                         }
                         break;
                     case '爬行類':
                         if (recmd_type == '烏龜') {
                             if (dayNight == '晚上') {
-                                iconName = './img/ic_turtle_night.svg'
+                                iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_turtle_night.svg'
                             } else {
-                                iconName = './img/ic_turtle_day.svg'
+                                iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_turtle_day.svg'
                             }
                         } else {
                             if (dayNight == '晚上') {
-                                iconName = './img/ic_snake_night.svg'
+                                iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_snake_night.svg'
                             } else {
-                                iconName = './img/ic_snake_day.svg'
+                                iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_snake_day.svg'
                             }
                         }
                         break;
                     case '陸蟹':
                         if (dayNight == '晚上') {
-                            iconName = './img/ic_crab_night.svg'
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_crab_night.svg'
                         } else {
-                            iconName = './img/ic_crab_day.svg'
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_crab_day.svg'
                         }
                         break;
                     case '昆蟲':
                         if (dayNight == '晚上') {
-                            iconName = './img/ic_butterfly_night.svg'
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_butterfly_night.svg'
                         } else {
-                            iconName = './img/ic_butterfly_day.svg'
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_butterfly_day.svg'
                         }
                         break;
                 }
@@ -392,8 +398,9 @@
                 });
                 load_heatmap();
             }
-            
+
             load_roadkill_layers();
+            position_locator();
 
             function resize() {
                 var view_port = map.getViewPort();
