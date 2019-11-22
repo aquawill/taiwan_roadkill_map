@@ -53,7 +53,7 @@
                 tileSize: 512,
                 ppi: ppi,
             });
-            
+
             var pixelRatio = window.devicePixelRatio || 1;
             var ppi = pixelRatio === 1 ? 72 : 320
             var tile_size = pixelRatio === 1 ? 256 : 512
@@ -196,7 +196,7 @@
                         }
                         break;
                 }
-                console.log(type, recmd_type, dayNight, iconName);
+                //                console.log(type, recmd_type, dayNight, iconName);
                 return iconName
             }
 
@@ -294,100 +294,106 @@
             var xyz_road_url = 'https://xyz.api.here.com/hub/spaces/' + he_xyz_roadkill_road_space_id + '/iterate?access_token=' + he_xyz_roadkill_token
 
             var xyz_roadkill_bigdata_url = 'https://xyz.api.here.com/hub/spaces/9OoYKUad/iterate?access_token=AJ9hsz55T_aF1ggSv0XqXAA&limit=100000'
-            var heatmap_layer = new H.map.layer.Layer();
-            var heatmap_provider = new H.data.heatmap.Provider({
-                colors: new H.data.heatmap.Colors({
-                    '0.0': '#00000000',
-                    //                    '0.35': '#00000000',
-                    '0.5': '#C70039ff',
-                    //                    '0.8': '#fe9191ff',
-                    //                    '1.0': '#FF0000FF '
-                }, true),
-                opacity: 0.8,
-                // Paint assumed values in regions where no data is available
-                assumeValues: false
-            });
 
-            $.getJSON(xyz_roadkill_bigdata_url, function(value) {
-                var features = value.features;
-                features.forEach(function(item, index) {
-                    var geometry = item.geometry,
-                        lat = geometry.coordinates[1],
-                        lng = geometry.coordinates[0];
-                    heatmap_provider.addData([{
-                        lat: lat,
-                        lng: lng
-                    }]);
-                })
-            });
+            function load_heatmap() {
+                var heatmap_layer = new H.map.layer.Layer();
+                var heatmap_provider = new H.data.heatmap.Provider({
+                    colors: new H.data.heatmap.Colors({
+                        '0.0': '#00000000',
+                        //                    '0.35': '#00000000',
+                        '0.5': '#C70039ff',
+                        //                    '0.8': '#fe9191ff',
+                        //                    '1.0': '#FF0000FF '
+                    }, true),
+                    opacity: 0.8,
+                    // Paint assumed values in regions where no data is available
+                    assumeValues: false
+                });
 
-            heatmap_layer = new H.map.layer.TileLayer(heatmap_provider, {
-                opacity: 0.8
-            });
-            map.addLayer(heatmap_layer);
-
-
-            $.get(xyz_icon_url, function(value) {
-                var features = value.features;
-                features.forEach(function(item, index) {
-                    var geometry = item.geometry,
-                        lat = geometry.coordinates[1],
-                        lng = geometry.coordinates[0],
-                        icon_location = {
+                $.getJSON(xyz_roadkill_bigdata_url, function(value) {
+                    var features = value.features;
+                    features.forEach(function(item, index) {
+                        var geometry = item.geometry,
+                            lat = geometry.coordinates[1],
+                            lng = geometry.coordinates[0];
+                        heatmap_provider.addData([{
                             lat: lat,
                             lng: lng
-                        };
-                    var properties = item.properties,
-                        day_night = properties.day_night,
-                        id = properties.id,
-                        rec_type = properties.rec_type,
-                        rt_desc = properties.rt_desc,
-                        rt_number = properties.rt_number,
-                        rt_type = properties.rt_type,
-                        season = properties.season,
-                        type = properties.type;
-                    roadkill_marker = new H.map.Marker(icon_location, {
-                        icon: new H.map.Icon(getIcon(type, rec_type, day_night), iconOptions)
-                    });
-                    roadkill_marker.setData({
-                        html: '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">' + rec_type + '</th></tr><tr><td>季節</td><td>' + season + '</td></tr><tr><td>時間</td><td>' + day_night + '</td></tr><tr><td>路段</td><td>' + rt_desc + '</td></tr></table>',
-                        icon_location: icon_location
-                    });
-                    map.addObject(roadkill_marker);
-                    roadkill_marker.addEventListener('pointerenter', select_item, false);
-                    roadkill_marker.addEventListener('pointerleave', deselect_item, false);
-                })
-            });
-            
-            
-            $.get(xyz_road_url, function(value) {
-                var features = value.features;
-                features.forEach(function(item, index) {
-                    var geometry = item.geometry,
-                        coordinates = geometry.coordinates,
-                        properties = item.properties,
-                        day_night = properties.day_night,
-                        id = properties.id,
-                        rec_type = properties.rec_type,
-                        rt_desc = properties.rt_desc,
-                        rt_number = properties.rt_number,
-                        rt_type = properties.rt_type,
-                        season = properties.season,
-                        type = properties.type,
-                        road_LingString = new H.geo.LineString()
-                    for (i=0;i<coordinates.length;i++){
-                        var coordinate = coordinates[i];
-                        for (i=0;i<coordinate.length;i++){
-                            var lat_lng_pair = coordinate[i];
-                            road_LingString.pushLatLngAlt(lat_lng_pair[1], lat_lng_pair[0], 1);
-                        }
-                    }
-                    var road_Polyline = new H.map.Polyline(road_LingString)
-                    road_Polyline.setStyle(line_styler(rt_type));
-                    map.addObject(road_Polyline);
-                })
-            });
+                        }]);
+                    })
+                });
 
+                heatmap_layer = new H.map.layer.TileLayer(heatmap_provider, {
+                    opacity: 0.8
+                });
+                map.addLayer(heatmap_layer);
+            }
+
+            function load_roadkill_layers() {
+                $.get(xyz_icon_url, function(value) {
+                    var features = value.features;
+                    features.forEach(function(item, index) {
+                        var geometry = item.geometry,
+                            lat = geometry.coordinates[1],
+                            lng = geometry.coordinates[0],
+                            icon_location = {
+                                lat: lat,
+                                lng: lng
+                            };
+                        var properties = item.properties,
+                            day_night = properties.day_night,
+                            id = properties.id,
+                            rec_type = properties.rec_type,
+                            rt_desc = properties.rt_desc,
+                            rt_number = properties.rt_number,
+                            rt_type = properties.rt_type,
+                            season = properties.season,
+                            type = properties.type;
+                        roadkill_marker = new H.map.Marker(icon_location, {
+                            icon: new H.map.Icon(getIcon(type, rec_type, day_night), iconOptions)
+                        });
+                        roadkill_marker.setData({
+                            html: '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">' + rec_type + '</th></tr><tr><td>季節</td><td>' + season + '</td></tr><tr><td>時間</td><td>' + day_night + '</td></tr><tr><td>路段</td><td>' + rt_desc + '</td></tr></table>',
+                            icon_location: icon_location
+                        });
+                        map.addObject(roadkill_marker);
+                        roadkill_marker.addEventListener('pointerenter', select_item, false);
+                        roadkill_marker.addEventListener('pointerleave', deselect_item, false);
+                    })
+                });
+
+
+                $.get(xyz_road_url, function(value) {
+                    var features = value.features;
+                    features.forEach(function(item, index) {
+                        var geometry = item.geometry,
+                            coordinates = geometry.coordinates,
+                            properties = item.properties,
+                            day_night = properties.day_night,
+                            id = properties.id,
+                            rec_type = properties.rec_type,
+                            rt_desc = properties.rt_desc,
+                            rt_number = properties.rt_number,
+                            rt_type = properties.rt_type,
+                            season = properties.season,
+                            type = properties.type,
+                            road_LingString = new H.geo.LineString()
+                        for (i = 0; i < coordinates.length; i++) {
+                            var coordinate = coordinates[i];
+                            for (i = 0; i < coordinate.length; i++) {
+                                var lat_lng_pair = coordinate[i];
+                                road_LingString.pushLatLngAlt(lat_lng_pair[1], lat_lng_pair[0], 1);
+                            }
+                        }
+                        var road_Polyline = new H.map.Polyline(road_LingString)
+                        road_Polyline.setStyle(line_styler(rt_type));
+                        map.addObject(road_Polyline);
+                    })
+                });
+                load_heatmap();
+            }
+            
+            load_roadkill_layers();
 
             function resize() {
                 var view_port = map.getViewPort();
