@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css?dp-version=1533195059" />
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-clustering.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-data.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.0.min.js" integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"></script>
+    <style>
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+        }
+        
+        html,
+        body,
+        #map {
+            width: 100vw;
+            height: 100%;
+            position: relative float: left;
+        }
+
+    </style>
+</head>
+
+<body onresize="resize()">
+    <!--    <div id="logo" style=" position: absolute; top: 20px; z-index: 1000; left: 20px; "> <img src="./img/logo_512.png" width="200" height="200"> </div>-->
+    <div id="map">
+        <script type="text/javascript" charset="UTF-8">
+            var he_appid = 'JDuZcEECeUBXGkFT6zp9';
+            var he_appcode = 'pTa6-IjR6ElKf0kjAolO2A';
+            var he_apikey = 'Q9xlj7u7mi-hAQwQi1NUIEaDXgj18f5zJ1iI-cuzSyQ';
+            var he_xyz_roadkill_token = 'AEZdDq7XQX2fb8djB7_1egA';
+            var he_xyz_roadkill_road_space_id = 'xVHzxzsl'; // twn_roadkill_roads_min.geojson
+            var he_xyz_roadkill_icon_space_id = 'ppwW5xZ4'; // twn_roadkill_roads_icon_location_min.geojson
+            var platform = new H.service.Platform({
+                //                app_id: he_appid
+                //                , app_code: he_appcode
+                apikey: he_apikey,
+                useHTTPS: true
+                    //                , useCIT: true
+            });
+            var geocoder = platform.getGeocodingService();
+            var router = platform.getRoutingService();
+            var pixelRatio = window.devicePixelRatio || 1;
+            var defaultLayers = platform.createDefaultLayers({
+                tileSize: 512,
+                ppi: ppi,
+            });
+            
+            var pixelRatio = window.devicePixelRatio || 1;
+            var ppi = pixelRatio === 1 ? 72 : 320
+            var tile_size = pixelRatio === 1 ? 256 : 512
+
+            function activate_cht_map(map, platform) {
+                var mapTileService = platform.getMapTileService({
+                        type: 'base'
+                    }),
+                    TaiwanMapLayer = mapTileService.createTileLayer('maptile', 'normal.day.grey', 512, 'png8', {
+                        lg: 'cht',
+                        ppi: ppi,
+                        pois: 0
+                    });
+                map.setBaseLayer(TaiwanMapLayer);
+            }
+            var map = new H.Map(document.getElementById('map'), defaultLayers.raster.normal.map, {
+                center: {
+                    lat: 23.749408835677244,
+                    lng: 121.00495296263927
+                },
+                zoom: 8,
+                pixelRatio: pixelRatio
+            });
+            var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+            //            navigator.geolocation.getCurrentPosition(function(location) {
+            //                var gps_location_marker = new H.map.Circle({
+            //                    lat: location.coords.latitude,
+            //                    lng: location.coords.longitude
+            //                }, 5, {
+            //                    style: {
+            //                        strokeColor: 'rgba(245, 117, 249, 0.3)',
+            //                        lineWidth: 1,
+            //                        fillColor: 'rgba(184, 197, 252, 0.5)'
+            //                    }
+            //                });
+            //                var gps_location_marker_radius = new H.map.Circle({
+            //                    lat: location.coords.latitude,
+            //                    lng: location.coords.longitude
+            //                }, location.coords.accuracy, {
+            //                    style: {
+            //                        strokeColor: 'rgba(245, 117, 249, 0.3)',
+            //                        lineWidth: 1,
+            //                        fillColor: 'rgba(250, 184, 252, 0.3)'
+            //                    }
+            //                });
+            //                gps_location_marker_radius.setZIndex(0);
+            //                gps_location_marker.setZIndex(10);
+            //                map.addObject(gps_location_marker_radius);
+            //                map.addObject(gps_location_marker);
+            //                map.setCenter({
+            //                    lat: location.coords.latitude,
+            //                    lng: location.coords.longitude
+            //                });
+            //                rev_geocoder({
+            //                    lat: location.coords.latitude,
+            //                    lng: location.coords.longitude
+            //                });
+            //            });
+            activate_cht_map(map, platform);
+            var ui = H.ui.UI.createDefault(map, defaultLayers);
+            ui.removeControl('mapsettings');
+            var roadkill_line_group = new H.map.Group(),
+                roadkill_icon_group = new H.map.Group(),
+                selected_point_group = new H.map.Group();
+            map.addObject(roadkill_line_group);
+            map.addObject(roadkill_icon_group);
+            map.addObject(selected_point_group);
+            var bubble;
+
+            function purge_bubble() {
+                if (ui.getBubbles().length > 0) {
+                    for (i = 0; i < ui.getBubbles().length; i++) {
+                        ui.removeBubble(ui.getBubbles()[i]);
+                    }
+                }
+            }
+
+            var iconOptions = {
+                size: {
+                    w: pixelRatio === 1 ? 24 : 48,
+                    h: pixelRatio === 1 ? 24 : 48
+                },
+                anchor: {
+                    x: pixelRatio === 1 ? 12 : 24,
+                    y: pixelRatio === 1 ? 12 : 24
+                }
+            };
+
+            function getIcon(type, recmd_type, dayNight) {
+                var iconName
+                switch (type) {
+                    case '鳥類':
+                        if (dayNight == '晚上') {
+                            iconName = './img/ic_bird_night.png'
+                        } else {
+                            iconName = './img/ic_bird_day.png'
+                        }
+                        break;
+                    case '哺乳類':
+                        if (dayNight == '晚上') {
+                            iconName = './img/ic_mammal_night.png'
+                        } else {
+                            iconName = './img/ic_mammal_day.png'
+                        }
+                        break;
+                    case '兩生類':
+                        if (dayNight == '晚上') {
+                            iconName = './img/ic_frog_night.png'
+                        } else {
+                            iconName = './img/ic_frog_day.png'
+                        }
+                        break;
+                    case '爬行類':
+                        if (recmd_type == '烏龜') {
+                            if (dayNight == '晚上') {
+                                iconName = './img/ic_turtle_night.png'
+                            } else {
+                                iconName = './img/ic_turtle_day.png'
+                            }
+                        } else {
+                            if (dayNight == '晚上') {
+                                iconName = './img/ic_snake_night.png'
+                            } else {
+                                iconName = './img/ic_snake_day.png'
+                            }
+                        }
+                        break;
+                    case '陸蟹':
+                        if (dayNight == '晚上') {
+                            iconName = './img/ic_crab_night.png'
+                        } else {
+                            iconName = './img/ic_crab_day.png'
+                        }
+                        break;
+                    case '昆蟲':
+                        if (dayNight == '晚上') {
+                            iconName = './img/ic_butterfly_night.png'
+                        } else {
+                            iconName = './img/ic_butterfly_day.png'
+                        }
+                        break;
+                }
+                console.log(type, recmd_type, dayNight, iconName);
+                return iconName
+            }
+
+            function line_styler(route_type) {
+                var customStyle
+                switch (route_type) {
+                    case '國道':
+                        customStyle = {
+                            strokeColor: '#e59866',
+                            lineWidth: 10,
+                            lineCap: 'square',
+                            lineJoin: 'bevel'
+                        };
+                        break;
+                    case '省道':
+                        customStyle = {
+                            strokeColor: '#f4d03f',
+                            lineWidth: 10,
+                            lineCap: 'square',
+                            lineJoin: 'bevel'
+                        };
+                        break;
+                    case '縣道':
+                        customStyle = {
+                            strokeColor: '#58d68d',
+                            lineWidth: 10,
+                            lineCap: 'square',
+                            lineJoin: 'bevel'
+                        };
+                        break;
+                    case '鄉道':
+                        customStyle = {
+                            strokeColor: '#85c1e9',
+                            lineWidth: 10,
+                            lineCap: 'square',
+                            lineJoin: 'bevel'
+                        };
+                        break;
+                    case '其他道路':
+                        customStyle = {
+                            strokeColor: '#bb8fce',
+                            lineWidth: 10,
+                            lineCap: 'square',
+                            lineJoin: 'bevel'
+                        };
+                        break;
+                    case '林道':
+                        customStyle = {
+                            strokeColor: '#b2babb',
+                            lineWidth: 10,
+                            lineCap: 'square',
+                            lineJoin: 'bevel'
+                        };
+                        break;
+                }
+                return customStyle
+            }
+
+            function select_item(evt) {
+                console.log(evt);
+                if (ui.getBubbles().length > 0) {
+                    for (i = 0; i < ui.getBubbles().length; i++) {
+                        ui.removeBubble(ui.getBubbles()[i]);
+                    }
+                }
+                selected_point_group.removeAll();
+                //                console.log(evt.target.getData());
+                var bubble = new H.ui.InfoBubble(evt.target.data.icon_location, {
+                    content: evt.target.data.html
+                });
+                ui.addBubble(bubble);
+            }
+
+            function deselect_item(evt) {
+                if (ui.getBubbles().length > 0) {
+                    for (i = 0; i < ui.getBubbles().length; i++) {
+                        ui.removeBubble(ui.getBubbles()[i]);
+                    }
+                }
+                selected_point_group.removeAll();
+            }
+
+            function selectedMarkerOnClick(e) {
+                if (ui.getBubbles().length > 0) {
+                    for (i = 0; i < ui.getBubbles().length; i++) {
+                        ui.removeBubble(ui.getBubbles()[i]);
+                    }
+                }
+                roadkill_icon_group.setVisibility(true);
+                selected_point_group.removeAll();
+                roadkill_line_group.removeAll();
+            };
+
+            var xyz_icon_url = 'https://xyz.api.here.com/hub/spaces/' + he_xyz_roadkill_icon_space_id + '/iterate?access_token=' + he_xyz_roadkill_token
+            var xyz_road_url = 'https://xyz.api.here.com/hub/spaces/' + he_xyz_roadkill_road_space_id + '/iterate?access_token=' + he_xyz_roadkill_token
+
+            var xyz_roadkill_bigdata_url = 'https://xyz.api.here.com/hub/spaces/9OoYKUad/iterate?access_token=AJ9hsz55T_aF1ggSv0XqXAA&limit=100000'
+            var heatmap_layer = new H.map.layer.Layer();
+            var heatmap_provider = new H.data.heatmap.Provider({
+                colors: new H.data.heatmap.Colors({
+                    '0.0': '#00000000',
+                    //                    '0.35': '#00000000',
+                    '0.5': '#C70039ff',
+                    //                    '0.8': '#fe9191ff',
+                    //                    '1.0': '#FF0000FF '
+                }, true),
+                opacity: 0.8,
+                // Paint assumed values in regions where no data is available
+                assumeValues: false
+            });
+
+            $.getJSON(xyz_roadkill_bigdata_url, function(value) {
+                var features = value.features;
+                features.forEach(function(item, index) {
+                    var geometry = item.geometry,
+                        lat = geometry.coordinates[1],
+                        lng = geometry.coordinates[0];
+                    heatmap_provider.addData([{
+                        lat: lat,
+                        lng: lng
+                    }]);
+                })
+            });
+
+            heatmap_layer = new H.map.layer.TileLayer(heatmap_provider, {
+                opacity: 0.8
+            });
+            map.addLayer(heatmap_layer);
+
+
+            $.get(xyz_icon_url, function(value) {
+                var features = value.features;
+                features.forEach(function(item, index) {
+                    var geometry = item.geometry,
+                        lat = geometry.coordinates[1],
+                        lng = geometry.coordinates[0],
+                        icon_location = {
+                            lat: lat,
+                            lng: lng
+                        };
+                    var properties = item.properties,
+                        day_night = properties.day_night,
+                        id = properties.id,
+                        rec_type = properties.rec_type,
+                        rt_desc = properties.rt_desc,
+                        rt_number = properties.rt_number,
+                        rt_type = properties.rt_type,
+                        season = properties.season,
+                        type = properties.type;
+                    roadkill_marker = new H.map.Marker(icon_location, {
+                        icon: new H.map.Icon(getIcon(type, rec_type, day_night), iconOptions)
+                    });
+                    roadkill_marker.setData({
+                        html: '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">' + rec_type + '</th></tr><tr><td>季節</td><td>' + season + '</td></tr><tr><td>時間</td><td>' + day_night + '</td></tr><tr><td>路段</td><td>' + rt_desc + '</td></tr></table>',
+                        icon_location: icon_location
+                    });
+                    map.addObject(roadkill_marker);
+                    roadkill_marker.addEventListener('pointerenter', select_item, false);
+                    roadkill_marker.addEventListener('pointerleave', deselect_item, false);
+                })
+            });
+            
+            
+            $.get(xyz_road_url, function(value) {
+                var features = value.features;
+                features.forEach(function(item, index) {
+                    var geometry = item.geometry,
+                        coordinates = geometry.coordinates,
+                        properties = item.properties,
+                        day_night = properties.day_night,
+                        id = properties.id,
+                        rec_type = properties.rec_type,
+                        rt_desc = properties.rt_desc,
+                        rt_number = properties.rt_number,
+                        rt_type = properties.rt_type,
+                        season = properties.season,
+                        type = properties.type,
+                        road_LingString = new H.geo.LineString()
+                    for (i=0;i<coordinates.length;i++){
+                        var coordinate = coordinates[i];
+                        for (i=0;i<coordinate.length;i++){
+                            var lat_lng_pair = coordinate[i];
+                            road_LingString.pushLatLngAlt(lat_lng_pair[1], lat_lng_pair[0], 1);
+                        }
+                    }
+                    var road_Polyline = new H.map.Polyline(road_LingString)
+                    road_Polyline.setStyle(line_styler(rt_type));
+                    map.addObject(road_Polyline);
+                })
+            });
+
+
+            function resize() {
+                var view_port = map.getViewPort();
+                view_port.resize();
+            }
+
+
+            var bounds = new H.geo.Rect(26.3841, 117.9841, 21.8967, 122.0069);
+            map.getViewModel().addEventListener('sync', function() {
+                var center = map.getCenter();
+                if (!bounds.containsPoint(center)) {
+                    if (center.lat > bounds.getTop()) {
+                        center.lat = bounds.getTop();
+                    } else if (center.lat < bounds.getBottom()) {
+                        center.lat = bounds.getBottom();
+                    }
+                    if (center.lng < bounds.getLeft()) {
+                        center.lng = bounds.getLeft();
+                    } else if (center.lng > bounds.getRight()) {
+                        center.lng = bounds.getRight();
+                    }
+                    map.setCenter(center);
+                }
+                if (map.getZoom() < 7) {
+                    map.setZoom(7);
+                }
+            });
+
+        </script>
+    </div>
+</body>
