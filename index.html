@@ -62,7 +62,9 @@
             var ppi = pixelRatio === 1 ? 72 : 320
             var tile_size = pixelRatio === 1 ? 256 : 512
             var road_Polyline_list = [];
-
+            var heatmap_layer = new H.map.layer.Layer();
+            var heatmap_layer_loaded = false;
+            //            heatmap_layer.addEventListener('update', console.log, console.error);
             function activate_cht_map(map, platform) {
                 var mapTileService = platform.getMapTileService({
                         type: 'base'
@@ -119,10 +121,36 @@
                 });
             }
 
+            var enable_heatmap_icon = '<table><tr><td align="center" valign="center"><img src="./img/enable_heatmap_icon.png" alt="顯示路殺熱點" width="50px" height="50px"></td></tr></table></div>'
+            var disable_heatmap_icon = '<table><tr><td align="center" valign="center"><img src="./img/disable_heatmap_icon.png" alt="隱藏路殺熱點" width="50px" height="50px"></td></tr></table></div>'
+
 
             activate_cht_map(map, platform);
             var ui = H.ui.UI.createDefault(map, defaultLayers);
             ui.removeControl('mapsettings');
+
+            var custom_control = new H.ui.Control();
+            var heatmap_switch = new H.ui.base.PushButton({
+                label: enable_heatmap_icon,
+                onStateChange: function(evt) {
+                    if (heatmap_switch.getState() == "down") {
+                        if (!heatmap_layer_loaded) {
+                            load_heatmap();
+                        }
+                        map.addLayer(heatmap_layer);
+                        heatmap_switch.setLabel(disable_heatmap_icon);
+                        heatmap_switch.addClass("customControlSelected");
+                    } else {
+                        map.removeLayer(heatmap_layer);
+                        heatmap_switch.setLabel(enable_heatmap_icon);
+                        heatmap_switch.removeClass("customControlSelected");
+                    }
+                }
+            });
+            custom_control.addChild(heatmap_switch);
+            custom_control.setAlignment("right-bottom");
+            ui.addControl("custom_control", custom_control);
+
             var roadkill_line_group = new H.map.Group(),
                 roadkill_icon_group = new H.map.Group(),
                 selected_point_group = new H.map.Group();
@@ -316,7 +344,7 @@
             var xyz_roadkill_bigdata_url = 'https://xyz.api.here.com/hub/spaces/9OoYKUad/iterate?access_token=AJ9hsz55T_aF1ggSv0XqXAA&limit=100000'
 
             function load_heatmap() {
-                var heatmap_layer = new H.map.layer.Layer();
+
                 var heatmap_provider = new H.data.heatmap.Provider({
                     colors: new H.data.heatmap.Colors({
                         '0.0': '#00000000',
@@ -341,12 +369,12 @@
                             lng: lng
                         }]);
                     })
+                    heatmap_layer_loaded = true;
                 });
 
                 heatmap_layer = new H.map.layer.TileLayer(heatmap_provider, {
                     opacity: 0.8
                 });
-                map.addLayer(heatmap_layer);
             }
 
             function load_roadkill_layers() {
@@ -416,7 +444,7 @@
                         });
                     })
                 });
-                load_heatmap();
+
             }
 
             load_roadkill_layers();
