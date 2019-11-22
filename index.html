@@ -52,15 +52,16 @@
             var width = screen.width;
             var height = screen.height;
             var screenRatio = screen.width / screen.height;
-            console.log(screenRatio);
             var defaultLayers = platform.createDefaultLayers({
                 tileSize: 512,
                 ppi: ppi,
+                lg: 'cht'
             });
 
             var pixelRatio = window.devicePixelRatio || 1;
             var ppi = pixelRatio === 1 ? 72 : 320
             var tile_size = pixelRatio === 1 ? 256 : 512
+            var road_Polyline_list = [];
 
             function activate_cht_map(map, platform) {
                 var mapTileService = platform.getMapTileService({
@@ -81,6 +82,7 @@
                 zoom: screenRatio > 1 ? 8 : 7,
                 pixelRatio: pixelRatio
             });
+            map.getViewPort().setPadding(100, 100, 100, 100);
             var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
 
             function position_locator() {
@@ -213,6 +215,7 @@
                         customStyle = {
                             strokeColor: '#e59866',
                             lineWidth: 10,
+                            lineDash: [0, 2],
                             lineCap: 'square',
                             lineJoin: 'bevel'
                         };
@@ -221,6 +224,7 @@
                         customStyle = {
                             strokeColor: '#f4d03f',
                             lineWidth: 10,
+                            lineDash: [0, 2],
                             lineCap: 'square',
                             lineJoin: 'bevel'
                         };
@@ -229,6 +233,7 @@
                         customStyle = {
                             strokeColor: '#58d68d',
                             lineWidth: 10,
+                            lineDash: [0, 2],
                             lineCap: 'square',
                             lineJoin: 'bevel'
                         };
@@ -237,6 +242,7 @@
                         customStyle = {
                             strokeColor: '#85c1e9',
                             lineWidth: 10,
+                            lineDash: [0, 2],
                             lineCap: 'square',
                             lineJoin: 'bevel'
                         };
@@ -245,6 +251,7 @@
                         customStyle = {
                             strokeColor: '#bb8fce',
                             lineWidth: 10,
+                            lineDash: [0, 2],
                             lineCap: 'square',
                             lineJoin: 'bevel'
                         };
@@ -253,6 +260,7 @@
                         customStyle = {
                             strokeColor: '#b2babb',
                             lineWidth: 10,
+                            lineDash: [0, 2],
                             lineCap: 'square',
                             lineJoin: 'bevel'
                         };
@@ -263,17 +271,23 @@
 
             function select_item(evt) {
                 console.log(evt);
-                if (ui.getBubbles().length > 0) {
-                    for (i = 0; i < ui.getBubbles().length; i++) {
-                        ui.removeBubble(ui.getBubbles()[i]);
-                    }
-                }
+                purge_bubble();
                 selected_point_group.removeAll();
                 //                console.log(evt.target.getData());
                 var bubble = new H.ui.InfoBubble(evt.target.data.icon_location, {
                     content: evt.target.data.html
                 });
+                map.setCenter(evt.target.data.icon_location)
+                    //                map.setZoom(16, true);
                 ui.addBubble(bubble);
+                for (var i = 0; i < road_Polyline_list.length; i++) {
+                    if (road_Polyline_list[i].id == evt.target.data.id) {
+                        map.getViewModel().setLookAtData({
+                            bounds: road_Polyline_list[i].geometry.getBoundingBox(),
+                            zoom: 16
+                        }, true);
+                    }
+                }
             }
 
             function deselect_item(evt) {
@@ -360,11 +374,13 @@
                         });
                         roadkill_marker.setData({
                             html: '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">' + rec_type + '</th></tr><tr><td>季節</td><td>' + season + '</td></tr><tr><td>時間</td><td>' + day_night + '</td></tr><tr><td>路段</td><td>' + rt_desc + '</td></tr></table>',
-                            icon_location: icon_location
+                            icon_location: icon_location,
+                            id: id
                         });
                         map.addObject(roadkill_marker);
-                        roadkill_marker.addEventListener('pointerenter', select_item, false);
-                        roadkill_marker.addEventListener('pointerleave', deselect_item, false);
+                        roadkill_marker.addEventListener('tap', select_item, false);
+                        //                        roadkill_marker.addEventListener('pointerenter', select_item, false);
+                        //                        roadkill_marker.addEventListener('pointerleave', deselect_item, false);
                     })
                 });
 
@@ -394,6 +410,10 @@
                         var road_Polyline = new H.map.Polyline(road_LingString)
                         road_Polyline.setStyle(line_styler(rt_type));
                         map.addObject(road_Polyline);
+                        road_Polyline_list.push({
+                            id: id,
+                            geometry: road_Polyline
+                        });
                     })
                 });
                 load_heatmap();
