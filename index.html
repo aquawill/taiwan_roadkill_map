@@ -31,7 +31,7 @@
 </head>
 
 <body onresize="resize()">
-    <div id="map">
+    <div id="map" class="map">
         <script type="text/javascript" charset="UTF-8">
             var he_appid = 'JDuZcEECeUBXGkFT6zp9';
             var he_appcode = 'pTa6-IjR6ElKf0kjAolO2A';
@@ -76,6 +76,7 @@
                     });
                 map.setBaseLayer(TaiwanMapLayer);
             }
+            
             var map = new H.Map(document.getElementById('map'), defaultLayers.raster.normal.map, {
                 center: {
                     lat: 23.749408835677244,
@@ -120,9 +121,11 @@
                     map.setZoom(13, true);
                 });
             }
+            
+            console.log($(".H_btn H_el"));
 
-            var enable_heatmap_icon = '<table><tr><td align="center" valign="center"><img src="./img/enable_heatmap_icon.png" alt="顯示路殺熱點" width="50px" height="50px"></td></tr></table></div>'
-            var disable_heatmap_icon = '<table><tr><td align="center" valign="center"><img src="./img/disable_heatmap_icon.png" alt="隱藏路殺熱點" width="50px" height="50px"></td></tr></table></div>'
+            var enable_heatmap_icon = '<table><tr><td align="center" valign="center"><img src="./img/enable_heatmap_icon.png" alt="顯示路殺熱點" style="width:3.55em;"></td></tr></table></div>'
+            var disable_heatmap_icon = '<table><tr><td align="center" valign="center"><img src="./img/disable_heatmap_icon.png" alt="隱藏路殺熱點" style="width:3.55em;"></td></tr></table></div>'
 
 
             activate_cht_map(map, platform);
