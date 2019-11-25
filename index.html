@@ -369,7 +369,7 @@
                 var bubble = new H.ui.InfoBubble(evt.target.data.icon_location, {
                     content: evt.target.data.html
                 });
-                
+
                 ui.addBubble(bubble);
             }
 
@@ -584,6 +584,8 @@
                 }
                 if (map.getZoom() < 7) {
                     map.setZoom(7);
+                } else if (map.getZoom() > 17) {
+                    map.setZoom(17);
                 }
             });
 
