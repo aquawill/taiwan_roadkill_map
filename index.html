@@ -129,6 +129,7 @@
                             icon_location: icon_location,
                             id: properties.id
                         });
+                        roadkill_bigdata_marker.setZIndex(1000);
                         roadkill_bigdata_marker.addEventListener('pointerenter', pointerenter_item, false);
                         roadkill_bigdata_marker.addEventListener('pointerleave', pointerleave_item, false);
                         roadkill_bigdata_locatoin_group.addObject(roadkill_bigdata_marker);
@@ -514,6 +515,7 @@
                             icon_location: icon_location,
                             id: id
                         });
+                        roadkill_marker.setZIndex(2000);
                         map.addObject(roadkill_marker);
                         roadkill_marker.addEventListener('tap', tap_item, false);
 
