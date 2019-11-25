@@ -205,6 +205,7 @@
                         if (!heatmap_layer_loaded) {
                             load_heatmap();
                         }
+                        purge_bubble();
                         map.addLayer(heatmap_layer);
                         heatmap_switch.setLabel(disable_heatmap_icon);
                         heatmap_switch.addClass("customControlSelected");
@@ -225,6 +226,7 @@
                 label: enable_sign_icon,
                 onStateChange: function(evt) {
                     if (sign_switch.getState() == "down") {
+                        purge_bubble();
                         animal_sign_group.setVisibility(true);
                         roadkill_hotspot_group.setVisibility(false);
                         sign_switch.setLabel(disable_sign_icon);
