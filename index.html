@@ -218,7 +218,7 @@
                     }
                 }
             });
-            
+
             var enable_sign_icon = '<table><tr><td align="center" valign="center"><img src="./img/enable_animal_crossing_sign.png" alt="顯示路殺熱點" style="width:3.55em;"></td></tr></table></div>'
             var disable_sign_icon = '<table><tr><td align="center" valign="center"><img src="./img/disable_animal_crossing_sign.png" alt="隱藏路殺熱點" style="width:3.55em;"></td></tr></table></div>'
             var sign_switch = new H.ui.base.PushButton({
@@ -567,6 +567,7 @@
             }
 
             function load_animal_crossing_signs() {
+                var image_width = screenRatio > 1 ? '30em' : '10em';
                 $.get(xyz_animal_crossing_sign_url, function(value) {
                     console.log(value);
                     var features = value.features;
@@ -587,7 +588,7 @@
                             icon: new H.map.Icon('https://aquawill.github.io/taiwan_roadkill_map/img/enable_animal_crossing_sign.png', iconOptions)
                         });
                         animal_crossing_sign_marker.setData({
-                            html: '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">當心動物標誌：' + target_species + '</th></tr><tr><td><img src="' + url + '" alt="顯示路殺熱點" style="height:' + screenRatio > 1 ? '20em' : '10em' + ';"></td></tr></table>',
+                            html: '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">當心動物標誌：' + target_species + '</th></tr><tr><td><img src="' + url + '" alt="顯示路殺熱點" style="height:' + image_width + ';"></td></tr></table>',
                             icon_location: icon_location
                         });
                         animal_crossing_sign_marker.setZIndex(1500);
