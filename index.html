@@ -113,14 +113,14 @@
                             lng: lng
                         };
                         roadkill_bigdata_marker = new H.map.Marker(icon_location, {
-                            icon: new H.map.Icon('https://aquawill.github.io/taiwan_roadkill_map/img/skull.png', {
+                            icon: new H.map.Icon(getKilledIcon(properties.type), {
                                 size: {
-                                    w: pixelRatio === 1 ? 16 : 12,
-                                    h: pixelRatio === 1 ? 16 : 12
+                                    w: pixelRatio === 1 ? 20 : 12,
+                                    h: pixelRatio === 1 ? 20 : 12
                                 },
                                 anchor: {
-                                    x: pixelRatio === 1 ? 8 : 8,
-                                    y: pixelRatio === 1 ? 6 : 6
+                                    x: pixelRatio === 1 ? 10 : 6,
+                                    y: pixelRatio === 1 ? 10 : 6
                                 }
                             })
                         });
@@ -268,7 +268,33 @@
                 }
             };
 
-            function getIcon(type, recmd_type, dayNight) {
+            function getKilledIcon(type) {
+                var iconName
+                switch (type) {
+                    case '鳥綱':
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_bird_killed.svg'
+                        break;
+                    case '哺乳綱':
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_mammal_killed.svg'
+                        break;
+                    case '爬蟲綱':
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_reptile_killed.svg'
+                        break;
+                    case '兩生綱':
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_frog_killed.svg'
+                        break;
+                    case '軟甲綱':
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_crab_killed.svg'
+                        break;
+                    default:
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_unknown_killed.svg'
+                        break;
+
+                }
+                return iconName
+            }
+
+            function getRoadkillRouteIcon(type, recmd_type, dayNight) {
                 var iconName
                 switch (type) {
                     case '鳥類':
@@ -498,7 +524,7 @@
 
             }
 
-            function load_roadkill_layers() {
+            function load_roadkill_route_layers() {
                 $.get(xyz_icon_url, function(value) {
                     var features = value.features;
                     features.forEach(function(item, index) {
@@ -519,7 +545,7 @@
                             season = properties.season,
                             type = properties.type;
                         var roadkill_marker = new H.map.Marker(icon_location, {
-                            icon: new H.map.Icon(getIcon(type, rec_type, day_night), iconOptions)
+                            icon: new H.map.Icon(getRoadkillRouteIcon(type, rec_type, day_night), iconOptions)
                         });
                         roadkill_marker.setData({
                             html: '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">' + rec_type + '</th></tr><tr><td>季節</td><td>' + season + '</td></tr><tr><td>時間</td><td>' + day_night + '</td></tr><tr><td>路段</td><td>' + rt_desc + '</td></tr></table>',
@@ -562,6 +588,7 @@
                             id: id,
                             geometry: road_Polyline
                         });
+                        road_Polyline.setZIndex(2000);
                         roadkill_hotspot_group.addObject(road_Polyline);
                     })
                 });
@@ -601,8 +628,8 @@
                 });
             }
 
-            load_roadkill_layers();
             position_locator();
+            load_roadkill_route_layers();
             load_animal_crossing_signs();
 
             function resize() {
