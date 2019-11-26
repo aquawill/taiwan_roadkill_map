@@ -82,7 +82,7 @@
                     lat: 23.749408835677244
                     , lng: 121.00495296263927
                 }
-                , zoom: screenRatio > 1 ? 8 : 7
+                , zoom: 7
                 , pixelRatio: pixelRatio
             });
             map.getViewPort().setPadding(200, 100, 100, 100);
@@ -110,12 +110,12 @@
                         roadkill_bigdata_marker = new H.map.Marker(icon_location, {
                             icon: new H.map.Icon(getKilledIcon(properties.type), {
                                 size: {
-                                    w: pixelRatio === 1 ? 20 : 12
-                                    , h: pixelRatio === 1 ? 20 : 12
+                                    w: pixelRatio === 1 ? 20 : 16
+                                    , h: pixelRatio === 1 ? 20 : 16
                                 }
                                 , anchor: {
-                                    x: pixelRatio === 1 ? 10 : 6
-                                    , y: pixelRatio === 1 ? 10 : 6
+                                    x: pixelRatio === 1 ? 10 : 8
+                                    , y: pixelRatio === 1 ? 10 : 8
                                 }
                             })
                         });
@@ -139,7 +139,7 @@
                 var mapTopLeft = map.screenToGeo(0, 0);
                 var mapBottomRight = map.screenToGeo(mapWidth, mapHeight);
                 console.log(mapZoom, heatmap_layer_opened);
-                if (mapZoom > 15 && heatmap_layer_opened == true) {
+                if (mapZoom >= 14 && heatmap_layer_opened == true) {
                     get_roadkill_bigdata_locations(mapTopLeft.lng, mapTopLeft.lat, mapBottomRight.lng, mapBottomRight.lat);
                 }
             }
@@ -196,6 +196,9 @@
                         }
                         purge_bubble();
                         map.addLayer(heatmap_layer);
+                        if (map.getZoom() >= 15) {
+                            check_map_bounds();
+                        }
                         heatmap_switch.setLabel(disable_heatmap_icon);
                         heatmap_switch.addClass("customControlSelected");
                     }
@@ -477,14 +480,11 @@
             function load_heatmap() {
                 var heatmap_provider = new H.data.heatmap.Provider({
                     colors: new H.data.heatmap.Colors({
-                        '0.0': '#00000000'
-                        , //                    '0.35': '#00000000',
-                        '0.5': '#C70039ff'
-                        , //                    '0.8': '#fe9191ff',
+                        '0.0': '#00000000', //                    '0.35': '#00000000',
+                        '0.5': '#C70039ff', //                    '0.8': '#fe9191ff',
                         //                    '1.0': '#FF0000FF '
                     }, true)
-                    , opacity: 0.8
-                    , // Paint assumed values in regions where no data is available
+                    , opacity: 0.8, // Paint assumed values in regions where no data is available
                     assumeValues: false
                 });
                 $.getJSON(xyz_roadkill_bigdata_iterate_url, function (value) {
@@ -502,9 +502,10 @@
                 });
                 heatmap_layer = new H.map.layer.TileLayer(heatmap_provider, {
                     opacity: 0.8
+                    , max: 14
                 });
                 heatmap_layer_opened = true;
-                if (map.getZoom() > 15) {
+                if (map.getZoom() >= 15) {
                     check_map_bounds();
                 }
             }
@@ -580,7 +581,6 @@
             function load_animal_crossing_signs() {
                 var image_width = screenRatio > 1 ? '30em' : '10em';
                 $.get(xyz_animal_crossing_sign_url, function (value) {
-                    console.log(value);
                     var features = value.features;
                     features.forEach(function (item, index) {
                         var geometry = item.geometry
