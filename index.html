@@ -26,7 +26,6 @@
             height: 100%;
             position: relative float: left;
         }
-
     </style>
 </head>
 
@@ -44,8 +43,8 @@
             var platform = new H.service.Platform({
                 //                app_id: he_appid
                 //                , app_code: he_appcode
-                apikey: he_apikey,
-                useHTTPS: true
+                apikey: he_apikey
+                , useHTTPS: true
                     //                , useCIT: true
             });
             var geocoder = platform.getGeocodingService();
@@ -55,11 +54,10 @@
             var height = screen.height;
             var screenRatio = screen.width / screen.height;
             var defaultLayers = platform.createDefaultLayers({
-                tileSize: 512,
-                ppi: ppi,
-                lg: 'cht'
+                tileSize: 512
+                , ppi: ppi
+                , lg: 'cht'
             });
-
             var pixelRatio = window.devicePixelRatio || 1;
             var ppi = pixelRatio === 1 ? 72 : 320
             var tile_size = pixelRatio === 1 ? 256 : 512
@@ -71,63 +69,69 @@
             function activate_cht_map(map, platform) {
                 var mapTileService = platform.getMapTileService({
                         type: 'base'
-                    }),
-                    TaiwanMapLayer = mapTileService.createTileLayer('maptile', 'normal.day.grey', 512, 'png8', {
-                        lg: 'cht',
-                        ppi: ppi,
-                        pois: 0
+                    })
+                    , TaiwanMapLayer = mapTileService.createTileLayer('maptile', 'normal.day.grey', 512, 'png8', {
+                        lg: 'cht'
+                        , ppi: ppi
+                        , pois: 0
                     });
                 map.setBaseLayer(TaiwanMapLayer);
             }
-
             var map = new H.Map(document.getElementById('map'), defaultLayers.raster.normal.map, {
                 center: {
-                    lat: 23.749408835677244,
-                    lng: 121.00495296263927
-                },
-                zoom: screenRatio > 1 ? 8 : 7,
-                pixelRatio: pixelRatio
+                    lat: 23.749408835677244
+                    , lng: 121.00495296263927
+                }
+                , zoom: screenRatio > 1 ? 8 : 7
+                , pixelRatio: pixelRatio
             });
             map.getViewPort().setPadding(200, 100, 100, 100);
             var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
-
-            var roadkill_hotspot_group = new H.map.Group(),
-                animal_sign_group = new H.map.Group(),
-                roadkill_bigdata_locatoin_group = new H.map.Group();
-
+            var roadkill_hotspot_group = new H.map.Group()
+                , animal_sign_group = new H.map.Group()
+                , roadkill_bigdata_locatoin_group = new H.map.Group();
             map.addObject(roadkill_hotspot_group);
             map.addObject(animal_sign_group);
             map.addObject(roadkill_bigdata_locatoin_group);
 
             function get_roadkill_bigdata_locations(west, north, east, south) {
                 var xyz_roadkill_bigdata_bbox_url = 'https://xyz.api.here.com/hub/spaces/' + he_xyz_roadkill_bigdata_space_id + '/bbox?access_token=' + he_xyz_roadkill_token + '&west=' + west + '&north=' + north + '&east=' + east + '&south=' + south;
-                $.getJSON(xyz_roadkill_bigdata_bbox_url, function(value) {
+                $.getJSON(xyz_roadkill_bigdata_bbox_url, function (value) {
                     var features = value.features;
-                    features.forEach(function(item, index) {
-                        var geometry = item.geometry,
-                            lat = geometry.coordinates[1],
-                            lng = geometry.coordinates[0],
-                            properties = item.properties;
+                    features.forEach(function (item, index) {
+                        var geometry = item.geometry
+                            , lat = geometry.coordinates[1]
+                            , lng = geometry.coordinates[0]
+                            , properties = item.properties;
                         icon_location = {
-                            lat: lat,
-                            lng: lng
+                            lat: lat
+                            , lng: lng
                         };
                         roadkill_bigdata_marker = new H.map.Marker(icon_location, {
                             icon: new H.map.Icon(getKilledIcon(properties.type), {
                                 size: {
+<<<<<<< Updated upstream
                                     w: pixelRatio === 1 ? 20 : 12,
                                     h: pixelRatio === 1 ? 20 : 12
                                 },
                                 anchor: {
                                     x: pixelRatio === 1 ? 10 : 6,
                                     y: pixelRatio === 1 ? 10 : 6
+=======
+                                    w: pixelRatio === 1 ? 16 : 12
+                                    , h: pixelRatio === 1 ? 16 : 12
+                                }
+                                , anchor: {
+                                    x: pixelRatio === 1 ? 8 : 8
+                                    , y: pixelRatio === 1 ? 6 : 6
+>>>>>>> Stashed changes
                                 }
                             })
                         });
                         roadkill_bigdata_marker.setData({
-                            html: '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">' + properties.id + '</th></tr><tr><td>種類</td><td>' + properties.type + '</td></tr></table>',
-                            icon_location: icon_location,
-                            id: properties.id
+                            html: '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">' + properties.id + '</th></tr><tr><td>種類</td><td>' + properties.type + '</td></tr></table>'
+                            , icon_location: icon_location
+                            , id: properties.id
                         });
                         roadkill_bigdata_marker.setZIndex(1000);
                         roadkill_bigdata_marker.addEventListener('pointerenter', pointerenter_item, false);
@@ -148,33 +152,31 @@
                     get_roadkill_bigdata_locations(mapTopLeft.lng, mapTopLeft.lat, mapBottomRight.lng, mapBottomRight.lat);
                 }
             }
-
             map.addEventListener('mapviewchangeend', check_map_bounds);
-            map.addEventListener('mapviewchangestart', function() {
+            map.addEventListener('mapviewchangestart', function () {
                 roadkill_bigdata_locatoin_group.removeAll()
             });
 
-
             function position_locator() {
-                navigator.geolocation.getCurrentPosition(function(location) {
+                navigator.geolocation.getCurrentPosition(function (location) {
                     var gps_location_marker = new H.map.Circle({
-                        lat: location.coords.latitude,
-                        lng: location.coords.longitude
+                        lat: location.coords.latitude
+                        , lng: location.coords.longitude
                     }, 5, {
                         style: {
-                            strokeColor: 'rgba(245, 117, 249, 0.3)',
-                            lineWidth: 1,
-                            fillColor: 'rgba(184, 197, 252, 0.5)'
+                            strokeColor: 'rgba(245, 117, 249, 0.3)'
+                            , lineWidth: 1
+                            , fillColor: 'rgba(184, 197, 252, 0.5)'
                         }
                     });
                     var gps_location_marker_radius = new H.map.Circle({
-                        lat: location.coords.latitude,
-                        lng: location.coords.longitude
+                        lat: location.coords.latitude
+                        , lng: location.coords.longitude
                     }, location.coords.accuracy, {
                         style: {
-                            strokeColor: 'rgba(245, 117, 249, 0.3)',
-                            lineWidth: 1,
-                            fillColor: 'rgba(250, 184, 252, 0.3)'
+                            strokeColor: 'rgba(245, 117, 249, 0.3)'
+                            , lineWidth: 1
+                            , fillColor: 'rgba(250, 184, 252, 0.3)'
                         }
                     });
                     gps_location_marker_radius.setZIndex(0);
@@ -182,25 +184,21 @@
                     map.addObject(gps_location_marker_radius);
                     map.addObject(gps_location_marker);
                     map.setCenter({
-                        lat: location.coords.latitude,
-                        lng: location.coords.longitude
+                        lat: location.coords.latitude
+                        , lng: location.coords.longitude
                     });
                     map.setZoom(13, true);
                 });
             }
-
-
-
             activate_cht_map(map, platform);
             var ui = H.ui.UI.createDefault(map, defaultLayers);
             ui.removeControl('mapsettings');
-
             var enable_heatmap_icon = '<table><tr><td align="center" valign="center"><img src="./img/enable_heatmap_icon.png" alt="顯示路殺熱點" style="width:3.55em;"></td></tr></table></div>'
             var disable_heatmap_icon = '<table><tr><td align="center" valign="center"><img src="./img/disable_heatmap_icon.png" alt="隱藏路殺熱點" style="width:3.55em;"></td></tr></table></div>'
             var custom_control = new H.ui.Control();
             var heatmap_switch = new H.ui.base.PushButton({
-                label: enable_heatmap_icon,
-                onStateChange: function(evt) {
+                label: enable_heatmap_icon
+                , onStateChange: function (evt) {
                     if (heatmap_switch.getState() == "down") {
                         if (!heatmap_layer_loaded) {
                             load_heatmap();
@@ -209,7 +207,8 @@
                         map.addLayer(heatmap_layer);
                         heatmap_switch.setLabel(disable_heatmap_icon);
                         heatmap_switch.addClass("customControlSelected");
-                    } else {
+                    }
+                    else {
                         map.removeLayer(heatmap_layer);
                         purge_bubble();
                         heatmap_layer_opened = false;
@@ -219,20 +218,19 @@
                     }
                 }
             });
-
             var enable_sign_icon = '<table><tr><td align="center" valign="center"><img src="./img/enable_animal_crossing_sign.png" alt="顯示路殺熱點" style="width:3.55em;"></td></tr></table></div>'
             var disable_sign_icon = '<table><tr><td align="center" valign="center"><img src="./img/disable_animal_crossing_sign.png" alt="隱藏路殺熱點" style="width:3.55em;"></td></tr></table></div>'
             var sign_switch = new H.ui.base.PushButton({
-                label: enable_sign_icon,
-                onStateChange: function(evt) {
+                label: enable_sign_icon
+                , onStateChange: function (evt) {
                     if (sign_switch.getState() == "down") {
                         purge_bubble();
                         animal_sign_group.setVisibility(true);
                         roadkill_hotspot_group.setVisibility(false);
                         sign_switch.setLabel(disable_sign_icon);
                         sign_switch.addClass("customControlSelected");
-                    } else {
-                        map.removeLayer(heatmap_layer);
+                    }
+                    else {
                         purge_bubble();
                         animal_sign_group.setVisibility(false);
                         roadkill_hotspot_group.setVisibility(true);
@@ -245,8 +243,6 @@
             custom_control.addChild(sign_switch);
             custom_control.setAlignment("right-bottom");
             ui.addControl("custom_control", custom_control);
-
-
             var bubble;
 
             function purge_bubble() {
@@ -256,15 +252,14 @@
                     }
                 }
             }
-
             var iconOptions = {
                 size: {
-                    w: pixelRatio === 1 ? 36 : 24,
-                    h: pixelRatio === 1 ? 36 : 24
-                },
-                anchor: {
-                    x: pixelRatio === 1 ? 18 : 12,
-                    y: pixelRatio === 1 ? 18 : 12
+                    w: pixelRatio === 1 ? 36 : 24
+                    , h: pixelRatio === 1 ? 36 : 24
+                }
+                , anchor: {
+                    x: pixelRatio === 1 ? 18 : 12
+                    , y: pixelRatio === 1 ? 18 : 12
                 }
             };
 
@@ -297,56 +292,64 @@
             function getRoadkillRouteIcon(type, recmd_type, dayNight) {
                 var iconName
                 switch (type) {
-                    case '鳥類':
+                case '鳥類':
+                    if (dayNight == '晚上') {
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_bird_night.svg'
+                    }
+                    else {
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_bird_day.svg'
+                    }
+                    break;
+                case '哺乳類':
+                    if (dayNight == '晚上') {
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_mammal_night.svg'
+                    }
+                    else {
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_mammal_day.svg'
+                    }
+                    break;
+                case '兩生類':
+                    if (dayNight == '晚上') {
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_frog_night.svg'
+                    }
+                    else {
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_frog_day.svg'
+                    }
+                    break;
+                case '爬行類':
+                    if (recmd_type == '烏龜') {
                         if (dayNight == '晚上') {
-                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_bird_night.svg'
-                        } else {
-                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_bird_day.svg'
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_turtle_night.svg'
                         }
-                        break;
-                    case '哺乳類':
+                        else {
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_turtle_day.svg'
+                        }
+                    }
+                    else {
                         if (dayNight == '晚上') {
-                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_mammal_night.svg'
-                        } else {
-                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_mammal_day.svg'
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_snake_night.svg'
                         }
-                        break;
-                    case '兩生類':
-                        if (dayNight == '晚上') {
-                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_frog_night.svg'
-                        } else {
-                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_frog_day.svg'
+                        else {
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_snake_day.svg'
                         }
-                        break;
-                    case '爬行類':
-                        if (recmd_type == '烏龜') {
-                            if (dayNight == '晚上') {
-                                iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_turtle_night.svg'
-                            } else {
-                                iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_turtle_day.svg'
-                            }
-                        } else {
-                            if (dayNight == '晚上') {
-                                iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_snake_night.svg'
-                            } else {
-                                iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_snake_day.svg'
-                            }
-                        }
-                        break;
-                    case '陸蟹':
-                        if (dayNight == '晚上') {
-                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_crab_night.svg'
-                        } else {
-                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_crab_day.svg'
-                        }
-                        break;
-                    case '昆蟲':
-                        if (dayNight == '晚上') {
-                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_butterfly_night.svg'
-                        } else {
-                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_butterfly_day.svg'
-                        }
-                        break;
+                    }
+                    break;
+                case '陸蟹':
+                    if (dayNight == '晚上') {
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_crab_night.svg'
+                    }
+                    else {
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_crab_day.svg'
+                    }
+                    break;
+                case '昆蟲':
+                    if (dayNight == '晚上') {
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_butterfly_night.svg'
+                    }
+                    else {
+                        iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_butterfly_day.svg'
+                    }
+                    break;
                 }
                 //                console.log(type, recmd_type, dayNight, iconName);
                 return iconName
@@ -355,60 +358,60 @@
             function line_styler(route_type) {
                 var customStyle
                 switch (route_type) {
-                    case '國道':
-                        customStyle = {
-                            strokeColor: '#e59866',
-                            lineWidth: 10,
-                            lineDash: [0, 2],
-                            lineCap: 'square',
-                            lineJoin: 'bevel'
-                        };
-                        break;
-                    case '省道':
-                        customStyle = {
-                            strokeColor: '#f4d03f',
-                            lineWidth: 10,
-                            lineDash: [0, 2],
-                            lineCap: 'square',
-                            lineJoin: 'bevel'
-                        };
-                        break;
-                    case '縣道':
-                        customStyle = {
-                            strokeColor: '#58d68d',
-                            lineWidth: 10,
-                            lineDash: [0, 2],
-                            lineCap: 'square',
-                            lineJoin: 'bevel'
-                        };
-                        break;
-                    case '鄉道':
-                        customStyle = {
-                            strokeColor: '#85c1e9',
-                            lineWidth: 10,
-                            lineDash: [0, 2],
-                            lineCap: 'square',
-                            lineJoin: 'bevel'
-                        };
-                        break;
-                    case '其他道路':
-                        customStyle = {
-                            strokeColor: '#bb8fce',
-                            lineWidth: 10,
-                            lineDash: [0, 2],
-                            lineCap: 'square',
-                            lineJoin: 'bevel'
-                        };
-                        break;
-                    case '林道':
-                        customStyle = {
-                            strokeColor: '#b2babb',
-                            lineWidth: 10,
-                            lineDash: [0, 2],
-                            lineCap: 'square',
-                            lineJoin: 'bevel'
-                        };
-                        break;
+                case '國道':
+                    customStyle = {
+                        strokeColor: '#e59866'
+                        , lineWidth: 10
+                        , lineDash: [0, 2]
+                        , lineCap: 'square'
+                        , lineJoin: 'bevel'
+                    };
+                    break;
+                case '省道':
+                    customStyle = {
+                        strokeColor: '#f4d03f'
+                        , lineWidth: 10
+                        , lineDash: [0, 2]
+                        , lineCap: 'square'
+                        , lineJoin: 'bevel'
+                    };
+                    break;
+                case '縣道':
+                    customStyle = {
+                        strokeColor: '#58d68d'
+                        , lineWidth: 10
+                        , lineDash: [0, 2]
+                        , lineCap: 'square'
+                        , lineJoin: 'bevel'
+                    };
+                    break;
+                case '鄉道':
+                    customStyle = {
+                        strokeColor: '#85c1e9'
+                        , lineWidth: 10
+                        , lineDash: [0, 2]
+                        , lineCap: 'square'
+                        , lineJoin: 'bevel'
+                    };
+                    break;
+                case '其他道路':
+                    customStyle = {
+                        strokeColor: '#bb8fce'
+                        , lineWidth: 10
+                        , lineDash: [0, 2]
+                        , lineCap: 'square'
+                        , lineJoin: 'bevel'
+                    };
+                    break;
+                case '林道':
+                    customStyle = {
+                        strokeColor: '#b2babb'
+                        , lineWidth: 10
+                        , lineDash: [0, 2]
+                        , lineCap: 'square'
+                        , lineJoin: 'bevel'
+                    };
+                    break;
                 }
                 return customStyle
             }
@@ -419,7 +422,6 @@
                 var bubble = new H.ui.InfoBubble(evt.target.data.icon_location, {
                     content: evt.target.data.html
                 });
-
                 ui.addBubble(bubble);
             }
 
@@ -434,8 +436,8 @@
                 for (var i = 0; i < road_Polyline_list.length; i++) {
                     if (road_Polyline_list[i].id == evt.target.data.id) {
                         map.getViewModel().setLookAtData({
-                            bounds: road_Polyline_list[i].geometry.getBoundingBox(),
-                            zoom: 16
+                            bounds: road_Polyline_list[i].geometry.getBoundingBox()
+                            , zoom: 16
                         }, true);
                     }
                 }
@@ -448,72 +450,66 @@
                     }
                 }
             }
-
             var xyz_icon_url = 'https://xyz.api.here.com/hub/spaces/' + he_xyz_roadkill_icon_space_id + '/iterate?access_token=' + he_xyz_roadkill_token
             var xyz_road_url = 'https://xyz.api.here.com/hub/spaces/' + he_xyz_roadkill_road_space_id + '/iterate?access_token=' + he_xyz_roadkill_token
             var xyz_animal_crossing_sign_url = 'https://xyz.api.here.com/hub/spaces/' + he_xyz_animal_crossing_sign_space_id + '/iterate?access_token=' + he_xyz_roadkill_token
             var xyz_roadkill_bigdata_iterate_url = 'https://xyz.api.here.com/hub/spaces/' + he_xyz_roadkill_bigdata_space_id + '/iterate?access_token=' + he_xyz_roadkill_token + '&limit=100000'
-
-            //            var service = platform.getXYZService({
-            //                    token: 'AJ9hsz55T_aF1ggSv0XqXAA'
-            //                }),
-            //                provider = new H.service.xyz.Provider(service, '9OoYKUad', {
-            //                    min: 14
-            //                });
-            //            provider.setStyle(new H.map.Style(`
-            //                sources:
-            //                  xyz:
-            //                    type: MVT
-            //                textures:
-            //                    icons:
-            //                        url: https://aquawill.github.io/taiwan_roadkill_map/img/skull.png
-            //                layers:
-            //                  xyz:
-            //                    data:
-            //                      source: xyz
-            //                      layer: 9OoYKUad
-            //                    points:
-            //                      filter:
-            //                        $geometry: point
-            //                      draw:
-            //                        points:
-            //                          texture: icons
-            //                          collide: false
-            //                          order: 200
-            //                          size: 16px
-            //            `));
-            //            var roadkill_location_layer = new H.map.layer.MarkerTileLayer(provider);
-            //            map.addLayer(roadkill_location_layer);
-
-
+                //            var service = platform.getXYZService({
+                //                    token: 'AJ9hsz55T_aF1ggSv0XqXAA'
+                //                }),
+                //                provider = new H.service.xyz.Provider(service, '9OoYKUad', {
+                //                    min: 14
+                //                });
+                //            provider.setStyle(new H.map.Style(`
+                //                sources:
+                //                  xyz:
+                //                    type: MVT
+                //                textures:
+                //                    icons:
+                //                        url: https://aquawill.github.io/taiwan_roadkill_map/img/skull.png
+                //                layers:
+                //                  xyz:
+                //                    data:
+                //                      source: xyz
+                //                      layer: 9OoYKUad
+                //                    points:
+                //                      filter:
+                //                        $geometry: point
+                //                      draw:
+                //                        points:
+                //                          texture: icons
+                //                          collide: false
+                //                          order: 200
+                //                          size: 16px
+                //            `));
+                //            var roadkill_location_layer = new H.map.layer.MarkerTileLayer(provider);
+                //            map.addLayer(roadkill_location_layer);
             function load_heatmap() {
                 var heatmap_provider = new H.data.heatmap.Provider({
                     colors: new H.data.heatmap.Colors({
-                        '0.0': '#00000000',
-                        //                    '0.35': '#00000000',
-                        '0.5': '#C70039ff',
-                        //                    '0.8': '#fe9191ff',
+                        '0.0': '#00000000'
+                        , //                    '0.35': '#00000000',
+                        '0.5': '#C70039ff'
+                        , //                    '0.8': '#fe9191ff',
                         //                    '1.0': '#FF0000FF '
-                    }, true),
-                    opacity: 0.8,
-                    // Paint assumed values in regions where no data is available
+                    }, true)
+                    , opacity: 0.8
+                    , // Paint assumed values in regions where no data is available
                     assumeValues: false
                 });
-
-                $.getJSON(xyz_roadkill_bigdata_iterate_url, function(value) {
+                $.getJSON(xyz_roadkill_bigdata_iterate_url, function (value) {
                     var features = value.features;
-                    features.forEach(function(item, index) {
-                        var geometry = item.geometry,
-                            lat = geometry.coordinates[1],
-                            lng = geometry.coordinates[0];
+                    features.forEach(function (item, index) {
+                        var geometry = item.geometry
+                            , lat = geometry.coordinates[1]
+                            , lng = geometry.coordinates[0];
                         heatmap_provider.addData([{
-                            lat: lat,
-                            lng: lng
+                            lat: lat
+                            , lng: lng
                         }]);
                     })
                     heatmap_layer_loaded = true;
                 });
-
                 heatmap_layer = new H.map.layer.TileLayer(heatmap_provider, {
                     opacity: 0.8
                 });
@@ -521,60 +517,61 @@
                 if (map.getZoom() > 15) {
                     check_map_bounds();
                 }
-
             }
 
+<<<<<<< Updated upstream
             function load_roadkill_route_layers() {
                 $.get(xyz_icon_url, function(value) {
+=======
+            function load_roadkill_layers() {
+                $.get(xyz_icon_url, function (value) {
+>>>>>>> Stashed changes
                     var features = value.features;
-                    features.forEach(function(item, index) {
-                        var geometry = item.geometry,
-                            lat = geometry.coordinates[1],
-                            lng = geometry.coordinates[0],
-                            icon_location = {
-                                lat: lat,
-                                lng: lng
+                    features.forEach(function (item, index) {
+                        var geometry = item.geometry
+                            , lat = geometry.coordinates[1]
+                            , lng = geometry.coordinates[0]
+                            , icon_location = {
+                                lat: lat
+                                , lng: lng
                             };
-                        var properties = item.properties,
-                            day_night = properties.day_night,
-                            id = properties.id,
-                            rec_type = properties.rec_type,
-                            rt_desc = properties.rt_desc,
-                            rt_number = properties.rt_number,
-                            rt_type = properties.rt_type,
-                            season = properties.season,
-                            type = properties.type;
+                        var properties = item.properties
+                            , day_night = properties.day_night
+                            , id = properties.id
+                            , rec_type = properties.rec_type
+                            , rt_desc = properties.rt_desc
+                            , rt_number = properties.rt_number
+                            , rt_type = properties.rt_type
+                            , season = properties.season
+                            , type = properties.type;
                         var roadkill_marker = new H.map.Marker(icon_location, {
                             icon: new H.map.Icon(getRoadkillRouteIcon(type, rec_type, day_night), iconOptions)
                         });
                         roadkill_marker.setData({
-                            html: '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">' + rec_type + '</th></tr><tr><td>季節</td><td>' + season + '</td></tr><tr><td>時間</td><td>' + day_night + '</td></tr><tr><td>路段</td><td>' + rt_desc + '</td></tr></table>',
-                            icon_location: icon_location,
-                            id: id
+                            html: '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">' + rec_type + '</th></tr><tr><td>季節</td><td>' + season + '</td></tr><tr><td>時間</td><td>' + day_night + '</td></tr><tr><td>路段</td><td>' + rt_desc + '</td></tr></table>'
+                            , icon_location: icon_location
+                            , id: id
                         });
                         roadkill_marker.setZIndex(2000);
                         roadkill_marker.addEventListener('tap', tap_item, false);
                         roadkill_hotspot_group.addObject(roadkill_marker);
-
                     })
                 });
-
-
-                $.get(xyz_road_url, function(value) {
+                $.get(xyz_road_url, function (value) {
                     var features = value.features;
-                    features.forEach(function(item, index) {
-                        var geometry = item.geometry,
-                            coordinates = geometry.coordinates,
-                            properties = item.properties,
-                            day_night = properties.day_night,
-                            id = properties.id,
-                            rec_type = properties.rec_type,
-                            rt_desc = properties.rt_desc,
-                            rt_number = properties.rt_number,
-                            rt_type = properties.rt_type,
-                            season = properties.season,
-                            type = properties.type,
-                            road_LingString = new H.geo.LineString()
+                    features.forEach(function (item, index) {
+                        var geometry = item.geometry
+                            , coordinates = geometry.coordinates
+                            , properties = item.properties
+                            , day_night = properties.day_night
+                            , id = properties.id
+                            , rec_type = properties.rec_type
+                            , rt_desc = properties.rt_desc
+                            , rt_number = properties.rt_number
+                            , rt_type = properties.rt_type
+                            , season = properties.season
+                            , type = properties.type
+                            , road_LingString = new H.geo.LineString()
                         for (i = 0; i < coordinates.length; i++) {
                             var coordinate = coordinates[i];
                             for (i = 0; i < coordinate.length; i++) {
@@ -585,8 +582,8 @@
                         var road_Polyline = new H.map.Polyline(road_LingString)
                         road_Polyline.setStyle(line_styler(rt_type));
                         road_Polyline_list.push({
-                            id: id,
-                            geometry: road_Polyline
+                            id: id
+                            , geometry: road_Polyline
                         });
                         road_Polyline.setZIndex(2000);
                         roadkill_hotspot_group.addObject(road_Polyline);
@@ -597,28 +594,28 @@
 
             function load_animal_crossing_signs() {
                 var image_width = screenRatio > 1 ? '30em' : '10em';
-                $.get(xyz_animal_crossing_sign_url, function(value) {
+                $.get(xyz_animal_crossing_sign_url, function (value) {
                     console.log(value);
                     var features = value.features;
-                    features.forEach(function(item, index) {
-                        var geometry = item.geometry,
-                            lat = geometry.coordinates[1],
-                            lng = geometry.coordinates[0],
-                            icon_location = {
-                                lat: lat,
-                                lng: lng
+                    features.forEach(function (item, index) {
+                        var geometry = item.geometry
+                            , lat = geometry.coordinates[1]
+                            , lng = geometry.coordinates[0]
+                            , icon_location = {
+                                lat: lat
+                                , lng: lng
                             };
-                        var properties = item.properties,
-                            owner = properties.owner,
-                            sn = properties.sn,
-                            target_species = properties.target_species,
-                            url = properties.url.split(';')[0];
+                        var properties = item.properties
+                            , owner = properties.owner
+                            , sn = properties.sn
+                            , target_species = properties.target_species
+                            , url = properties.url.split(';')[0];
                         var animal_crossing_sign_marker = new H.map.Marker(icon_location, {
                             icon: new H.map.Icon('https://aquawill.github.io/taiwan_roadkill_map/img/enable_animal_crossing_sign.png', iconOptions)
                         });
                         animal_crossing_sign_marker.setData({
-                            html: '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">當心動物標誌：' + target_species + '</th></tr><tr><td><img src="' + url + '" alt="顯示路殺熱點" style="height:' + image_width + ';"></td></tr></table>',
-                            icon_location: icon_location
+                            html: '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">當心動物標誌：' + target_species + '</th></tr><tr><td><img src="' + url + '" alt="顯示路殺熱點" style="height:' + image_width + ';"></td></tr></table>'
+                            , icon_location: icon_location
                         });
                         animal_crossing_sign_marker.setZIndex(1500);
                         animal_crossing_sign_marker.addEventListener('tap', tap_item, false);
@@ -627,7 +624,11 @@
                     })
                 });
             }
+<<<<<<< Updated upstream
 
+=======
+            load_roadkill_layers();
+>>>>>>> Stashed changes
             position_locator();
             load_roadkill_route_layers();
             load_animal_crossing_signs();
@@ -636,31 +637,31 @@
                 var view_port = map.getViewPort();
                 view_port.resize();
             }
-
-
             var bounds = new H.geo.Rect(26.3841, 117.9841, 21.8967, 122.0069);
-            map.getViewModel().addEventListener('sync', function() {
+            map.getViewModel().addEventListener('sync', function () {
                 var center = map.getCenter();
                 if (!bounds.containsPoint(center)) {
                     if (center.lat > bounds.getTop()) {
                         center.lat = bounds.getTop();
-                    } else if (center.lat < bounds.getBottom()) {
+                    }
+                    else if (center.lat < bounds.getBottom()) {
                         center.lat = bounds.getBottom();
                     }
                     if (center.lng < bounds.getLeft()) {
                         center.lng = bounds.getLeft();
-                    } else if (center.lng > bounds.getRight()) {
+                    }
+                    else if (center.lng > bounds.getRight()) {
                         center.lng = bounds.getRight();
                     }
                     map.setCenter(center);
                 }
                 if (map.getZoom() < 7) {
                     map.setZoom(7);
-                } else if (map.getZoom() > 17) {
+                }
+                else if (map.getZoom() > 17) {
                     map.setZoom(17);
                 }
             });
-
         </script>
     </div>
 </body>
