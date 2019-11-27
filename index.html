@@ -12,6 +12,9 @@
     <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-clustering.js"></script>
     <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-data.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.0.min.js" integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"></script>
+    <script src="./scripts/alertifyjs/alertify.min.js"></script>
+    <link rel="stylesheet" href="./scripts/alertifyjs/css/alertify.min.css" />
+    <link rel="stylesheet" href="./scripts/alertifyjs/css/themes/default.min.css" />
     <style>
         html,
         body {
@@ -32,8 +35,12 @@
 <body onresize="resize()">
     <div id="map" class="map">
         <script type="text/javascript" charset="UTF-8">
-            var he_appid = 'JDuZcEECeUBXGkFT6zp9';
-            var he_appcode = 'pTa6-IjR6ElKf0kjAolO2A';
+            alertify.defaults = {
+                notifier: {
+                    delay: 3
+                    , position: 'top-left'
+                , }
+            };
             var he_apikey = 'Q9xlj7u7mi-hAQwQi1NUIEaDXgj18f5zJ1iI-cuzSyQ';
             var he_xyz_roadkill_token = 'AHcNbIhdQfytn4uEUxar6AA';
             var he_xyz_roadkill_road_space_id = 'xVHzxzsl'; // twn_roadkill_roads_min.geojson
@@ -42,11 +49,8 @@
             var he_xyz_roadkill_bigdata_space_id = '9OoYKUad'; // twn_roadkill_roads_icon_location_min.geojson
             var heatmap_max = 15;
             var platform = new H.service.Platform({
-                //                app_id: he_appid
-                //                , app_code: he_appcode
                 apikey: he_apikey
                 , useHTTPS: true
-                    //                , useCIT: true
             });
             var geocoder = platform.getGeocodingService();
             var router = platform.getRoutingService();
@@ -66,7 +70,7 @@
             var heatmap_layer = new H.map.layer.Layer();
             var heatmap_layer_loaded = false;
             var heatmap_layer_opened = false;
-            //            heatmap_layer.addEventListener('update', console.log, console.error);
+
             function activate_cht_map(map, platform) {
                 var mapTileService = platform.getMapTileService({
                         type: 'base'
@@ -193,6 +197,7 @@
                 , onStateChange: function (evt) {
                     if (heatmap_switch.getState() == "down") {
                         console.log("heatmap opened.");
+                        alertify.message('開啟路殺大數據圖層');
                         if (!heatmap_layer_loaded) {
                             load_heatmap();
                         }
@@ -206,6 +211,7 @@
                     }
                     else {
                         console.log("heatmap closed.");
+                        alertify.message('關閉路殺大數據圖層');
                         map.removeLayer(heatmap_layer);
                         purge_bubble();
                         heatmap_layer_opened = false;
@@ -221,6 +227,7 @@
                 label: enable_sign_icon
                 , onStateChange: function (evt) {
                     if (sign_switch.getState() == "down") {
+                        alertify.message('顯示路殺改善地圖');
                         console.log("animal crossing sign opened.");
                         purge_bubble();
                         animal_sign_group.setVisibility(true);
@@ -230,6 +237,7 @@
                     }
                     else {
                         console.log("animal crossing sign closed.");
+                        alertify.message('顯示百大路殺路段');
                         purge_bubble();
                         animal_sign_group.setVisibility(false);
                         roadkill_hotspot_group.setVisibility(true);
@@ -238,6 +246,7 @@
                     }
                 }
             });
+            sign_switch.addEventListener("onmouseenter", console.log);
             custom_control.addChild(heatmap_switch);
             custom_control.addChild(sign_switch);
             custom_control.setAlignment("right-bottom");
