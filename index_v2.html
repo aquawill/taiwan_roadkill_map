@@ -43,6 +43,7 @@
                     position: 'top-center',
                 }
             };
+            var msg;
             var he_apikey = 'Q9xlj7u7mi-hAQwQi1NUIEaDXgj18f5zJ1iI-cuzSyQ';
             var he_xyz_roadkill_token = 'AHcNbIhdQfytn4uEUxar6AA';
             var he_xyz_roadkill_road_space_id = 'xVHzxzsl'; // twn_roadkill_roads_min.geojson
@@ -95,6 +96,9 @@
             });
             map.on('movestart', function () {
                 console.log('movestart');
+                if(msg){                    
+                    msg.dismiss();
+                }
                 tile_xyz_list = [];
                 roadkill_bigdata_location_group.clearLayers()
             });
@@ -363,7 +367,7 @@
 
             function load_bigdata() {
                 map.spin(true);
-                var msg = alertify.message('資料讀取中，請稍候……', 0);
+                msg = alertify.message('資料讀取中，請稍候……', 0);
                 heatmap_group.clearLayers();
                 var map_bounds = map.getBounds().pad(0.05);
                 var map_south_west = map_bounds.getSouthWest();
