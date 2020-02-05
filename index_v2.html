@@ -40,7 +40,6 @@
         <script type="text/javascript" charset="UTF-8">
             alertify.defaults = {
                 notifier: {
-                    delay: 1,
                     position: 'top-center',
                 }
             };
@@ -128,25 +127,25 @@
             heatmap_group.addTo(map);
             
             // Map Events
-            roadkill_hotspot_group.on('add', function () {
-                alertify.message('開啟路殺熱點路段');
-            })
-            roadkill_hotspot_group.on('remove', function () {
-                alertify.message('關閉路殺熱點路段');
-            })
-            animal_sign_group.on('add', function () {
-                alertify.message('開啟動物警告標誌');
-            })
-            animal_sign_group.on('remove', function () {
-                alertify.message('關閉動物警告標誌');
-            })
+            // roadkill_hotspot_group.on('add', function () {
+            //     alertify.message('開啟路殺熱點路段');
+            // })
+            // roadkill_hotspot_group.on('remove', function () {
+            //     alertify.message('關閉路殺熱點路段');
+            // })
+            // animal_sign_group.on('add', function () {
+            //     alertify.message('開啟動物警告標誌');
+            // })
+            // animal_sign_group.on('remove', function () {
+            //     alertify.message('關閉動物警告標誌');
+            // })
             roadkill_bigdata_location_group.on('add', function () {
-                alertify.message('開啟路殺歷史大數據');
+                // alertify.message('開啟路殺歷史大數據');
                 load_bigdata();
                 heatmap_layer_opened = true;
             })
             roadkill_bigdata_location_group.on('remove', function () {
-                alertify.message('關閉路殺歷史大數據');
+                // alertify.message('關閉路殺歷史大數據');
                 heatmap_group.clearLayers();
                 heatmap_layer_opened = false;
             })
@@ -340,40 +339,6 @@
                 return customStyle
             }
 
-            // function pointerenter_item(evt) {
-            //     //                console.log(evt);
-            //     purge_bubble();
-            //     var bubble = new H.ui.InfoBubble(evt.target.data.icon_location, {
-            //         content: evt.target.data.html
-            //     });
-            //     ui.addBubble(bubble);
-            // }
-
-            // function tap_item(evt) {
-            //     //                console.log(evt);
-            //     purge_bubble();
-            //     var bubble = new H.ui.InfoBubble(evt.target.data.icon_location, {
-            //         content: evt.target.data.html
-            //     });
-            //     map.setCenter(evt.target.data.icon_location)
-            //     ui.addBubble(bubble);
-            //     for (var i = 0; i < road_Polyline_list.length; i++) {
-            //         if (road_Polyline_list[i].id == evt.target.data.id) {
-            //             map.getViewModel().setLookAtData({
-            //                 bounds: road_Polyline_list[i].geometry.getBoundingBox(),
-            //                 zoom: 16
-            //             }, true);
-            //         }
-            //     }
-            // }
-
-            // function pointerleave_item(evt) {
-            //     if (ui.getBubbles().length > 0) {
-            //         for (i = 0; i < ui.getBubbles().length; i++) {
-            //             ui.removeBubble(ui.getBubbles()[i]);
-            //         }
-            //     }
-            // }
             var xyz_icon_url = 'https://xyz.api.here.com/hub/spaces/' + he_xyz_roadkill_icon_space_id +
                 '/iterate?access_token=' + he_xyz_roadkill_token
             var xyz_road_url = 'https://xyz.api.here.com/hub/spaces/' + he_xyz_roadkill_road_space_id +
@@ -398,6 +363,7 @@
 
             function load_bigdata() {
                 map.spin(true);
+                var msg = alertify.message('資料讀取中，請稍候……', 0);
                 heatmap_group.clearLayers();
                 var map_bounds = map.getBounds().pad(0.05);
                 var map_south_west = map_bounds.getSouthWest();
@@ -455,10 +421,9 @@
                                         L.geoJSON(hexgrid, grid_style).addTo(heatmap_group);
                                         console.log('max_grid_density', max_grid_density);
                                         map.spin(false);
-                                        alertify.success('Success message');
                                         heatmap_layer_loaded = false;
                                     }, 500);
-
+                                    msg.dismiss();
                                     break;
                                 }
                             } else {
@@ -499,6 +464,7 @@
                                     roadkill_bigdata_marker.addTo(
                                         roadkill_bigdata_location_group);
                                 })
+                                msg.dismiss();
                                 map.spin(false);
                             }
 
