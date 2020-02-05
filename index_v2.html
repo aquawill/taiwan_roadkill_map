@@ -126,9 +126,8 @@
                 heatmap_group = new L.featureGroup();
             roadkill_hotspot_group.addTo(map);
             heatmap_group.addTo(map);
-            roadkill_hotspot_group.on('add', function () {
-                alertify.message('開啟路殺熱點路段');
-            })
+            
+            // Map Events
             roadkill_hotspot_group.on('add', function () {
                 alertify.message('開啟路殺熱點路段');
             })
