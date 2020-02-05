@@ -96,7 +96,7 @@
             });
             map.on('movestart', function () {
                 console.log('movestart');
-                if(msg){                    
+                if (msg) {
                     msg.dismiss();
                 }
                 map.spin(false);
@@ -126,32 +126,19 @@
 
             var roadkill_hotspot_group = new L.featureGroup(),
                 animal_sign_group = new L.featureGroup(),
-                roadkill_bigdata_location_group = new L.featureGroup(),
-                heatmap_group = new L.featureGroup();
+                roadkill_bigdata_location_group = new L.featureGroup();
             roadkill_hotspot_group.addTo(map);
-            heatmap_group.addTo(map);
-            
-            // Map Events
-            // roadkill_hotspot_group.on('add', function () {
-            //     alertify.message('開啟路殺熱點路段');
-            // })
-            // roadkill_hotspot_group.on('remove', function () {
-            //     alertify.message('關閉路殺熱點路段');
-            // })
-            // animal_sign_group.on('add', function () {
-            //     alertify.message('開啟動物警告標誌');
-            // })
-            // animal_sign_group.on('remove', function () {
-            //     alertify.message('關閉動物警告標誌');
-            // })
+
+            var attribution_layer = L.geoJson();
+            attribution_layer.getAttribution = function () {
+                return '&copy; <a href="https://roadkill.tw/">台灣動物路死觀察網</a>';
+            };
+            attribution_layer.addTo(map);
             roadkill_bigdata_location_group.on('add', function () {
-                // alertify.message('開啟路殺歷史大數據');
                 load_bigdata();
                 heatmap_layer_opened = true;
             })
             roadkill_bigdata_location_group.on('remove', function () {
-                // alertify.message('關閉路殺歷史大數據');
-                heatmap_group.clearLayers();
                 heatmap_layer_opened = false;
             })
 
@@ -369,7 +356,7 @@
             function load_bigdata() {
                 map.spin(true);
                 msg = alertify.message('資料讀取中，請稍候……', 0);
-                heatmap_group.clearLayers();
+                roadkill_bigdata_location_group.clearLayers();
                 var map_bounds = map.getBounds().pad(0.05);
                 var map_south_west = map_bounds.getSouthWest();
                 var map_north_east = map_bounds.getNorthEast();
@@ -423,7 +410,8 @@
                                 // console.log(hexgrid);
                                 while (tile_number == 0) {
                                     setTimeout(function () {
-                                        L.geoJSON(hexgrid, grid_style).addTo(heatmap_group);
+                                        L.geoJSON(hexgrid, grid_style).addTo(
+                                            roadkill_bigdata_location_group);
                                         console.log('max_grid_density', max_grid_density);
                                         map.spin(false);
                                         heatmap_layer_loaded = false;
