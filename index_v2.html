@@ -32,10 +32,27 @@
             height: 100%;
             position: relative;
         }
+
+        #myProgress {
+            width: 20%;
+            background-color: grey;
+        }
+
+        #myBar {
+            width: 1%;
+            height: 20px;
+            background-color: green;
+        }
     </style>
 </head>
 
 <body>
+    <div id="myProgress"
+        style=" position: fixed; left: 50%; z-index: 1000; bottom: 20px; transform: translate(-50%, -50%); margin: 0 auto; ">
+        <div id="myBar">0%</div>
+
+    </div>
+
     <div id="map" class="map">
         <script type="text/javascript" charset="UTF-8">
             alertify.defaults = {
@@ -377,7 +394,12 @@
                 tile_xyz_list = get_tile_xyz(map.getBounds(), map.getZoom());
                 tile_number = tile_xyz_list.length;
                 max_grid_density = 0;
+                var grid_number = hexgrid.features.length;
+                total_grids = tile_number * grid_number;
+                var calculation_progress = 0;
+                console.log('total_grids: ' + total_grids);
                 tile_xyz_list.forEach(function (item, index) {
+                    console.log('tileindex: ' + index)
                     $.ajax({
                         url: xyz_roadkill_bigdata_tile_url.replace('{z}',
                                 item.z)
@@ -391,6 +413,7 @@
                             if (map.getZoom() < 14) {
                                 hexgrid.features.forEach(function (item,
                                     index) {
+                                    calculation_progress += 1;
                                     var density = item
                                         .properties.density;
                                     var points_within = turf
@@ -409,7 +432,9 @@
 
 
                                 // console.log(hexgrid);
-                                while (tile_number == 0) {
+                                while (calculation_progress / total_grids == 1) {
+                                    console.log('calculation_progress: ' +
+                                        calculation_progress / total_grids)
                                     setTimeout(function () {
                                         L.geoJSON(hexgrid, grid_style).addTo(
                                             roadkill_bigdata_location_group);
