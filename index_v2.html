@@ -45,11 +45,12 @@
             };
             var msg;
             var he_apikey = 'Q9xlj7u7mi-hAQwQi1NUIEaDXgj18f5zJ1iI-cuzSyQ';
-            var he_xyz_roadkill_token = 'AHcNbIhdQfytn4uEUxar6AA';
-            var he_xyz_roadkill_road_space_id = 'xVHzxzsl'; // twn_roadkill_roads_min.geojson
-            var he_xyz_roadkill_icon_space_id = 'ppwW5xZ4'; // twn_roadkill_roads_icon_location_min.geojson
-            var he_xyz_animal_crossing_sign_space_id = '4qRA5sz4'; // twn_roadkill_roads_icon_location_min.geojson
-            var he_xyz_roadkill_bigdata_space_id = '9OoYKUad'; // twn_roadkill_roads_icon_location_min.geojson
+            var he_xyz_roadkill_token = 'AJt8bGnvRgWmUd0RppoLxQA'; // https://xyz.api.here.com/token-ui/
+            var he_xyz_roadkill_hexgrid_space_id = 'jlhTBkWX'; // roadkill hexgrid heatmap layer
+            var he_xyz_roadkill_road_space_id = 'xVHzxzsl'; // roadkill road segment geometries
+            var he_xyz_roadkill_icon_space_id = 'ppwW5xZ4'; // icon for roadkill road segments
+            var he_xyz_animal_crossing_sign_space_id = '4qRA5sz4'; // icon for animal signs
+            var he_xyz_roadkill_bigdata_space_id = 'DzCrr7gA'; // icon for roadkill bigdata
             var heatmap_max = 15;
             var pixelRatio = window.devicePixelRatio || 1;
             var width = screen.width;
@@ -434,7 +435,7 @@
                                         icon_location, {
                                             icon: new L.icon({
                                                 iconUrl: getKilledIcon(
-                                                    properties.type),
+                                                    properties.class_tw),
                                                 iconSize: [default_icon_size /
                                                     2, default_icon_size /
                                                     2
@@ -449,9 +450,17 @@
                                     roadkill_marker_popup.setLatLng(icon_location);
                                     roadkill_marker_popup.setContent(
                                         '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">' +
-                                        properties.id +
+                                        properties.rk_id +
                                         '</th></tr><tr><td>種類</td><td>' + properties
-                                        .type + '</td></tr></table>');
+                                        .class_tw + '</td></tr><tr><td>科</td><td>' +
+                                        properties.family_tw + '/' + properties
+                                        .family_en + '</td></tr><tr><td>地點</td><td>' +
+                                        properties
+                                        .location + '</td></tr><tr><td>紀錄時間</td><td>' +
+                                        properties.rec_year + '/' + properties
+                                        .rec_month + '/' + properties.rec_day +
+                                        '</td></tr><tr><td>狀況</td><td>' + properties
+                                        .verified + '</td></tr></table>');
                                     roadkill_bigdata_marker.bindPopup(
                                         roadkill_marker_popup);
                                     roadkill_bigdata_marker.addTo(
