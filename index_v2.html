@@ -63,7 +63,7 @@
             var msg;
             var he_apikey = 'Q9xlj7u7mi-hAQwQi1NUIEaDXgj18f5zJ1iI-cuzSyQ';
             var he_xyz_roadkill_token = 'AJt8bGnvRgWmUd0RppoLxQA'; // https://xyz.api.here.com/token-ui/
-            var he_xyz_roadkill_hexgrid_space_id = 'jlhTBkWX'; // roadkill hexgrid heatmap layer
+            var he_xyz_roadkill_hexbin_space_id = 'jlhTBkWX'; // roadkill hexgrid heatmap layer
             var he_xyz_roadkill_road_space_id = 'xVHzxzsl'; // roadkill road segment geometries
             var he_xyz_roadkill_icon_space_id = 'ppwW5xZ4'; // icon for roadkill road segments
             var he_xyz_animal_crossing_sign_space_id = '4qRA5sz4'; // icon for animal signs
@@ -359,21 +359,22 @@
                 he_xyz_roadkill_bigdata_space_id + '/iterate?access_token=' + he_xyz_roadkill_token + '&limit=100000'
             var xyz_roadkill_bigdata_tile_url = 'https://xyz.api.here.com/hub/spaces/' +
                 he_xyz_roadkill_bigdata_space_id + '/tile/web/{z}_{x}_{y}?access_token=' + he_xyz_roadkill_token
+            var xyz_roadkill_bigdata_hexbin_tile_url = 'https://xyz.api.here.com/hub/spaces/' +
+                he_xyz_roadkill_hexbin_space_id + '/tile/web/{z}_{x}_{y}?access_token=' + he_xyz_roadkill_token
 
             var grid_style = {
                 style: function style(feature) {
                     return {
-                        fillColor: '#FF0000',
+                        fillColor: '#ff0000',
                         stroke: false,
-                        fillOpacity: feature.properties.density > 0 ? Math.log10(feature.properties.density) /
-                            5 : 0
+                        fillOpacity: feature.properties.count > 0 ? (Math.log10(feature.properties.count) /
+                            10) * 0.8 : 0
+                        // fillOpacity: feature.properties.occupancy * 0.6
                     };
                 }
             }
 
             function load_bigdata() {
-                map.spin(true);
-                msg = alertify.message('資料讀取中，請稍候……', 0);
                 roadkill_bigdata_location_group.clearLayers();
                 var map_bounds = map.getBounds().pad(0.05);
                 var map_south_west = map_bounds.getSouthWest();
@@ -398,54 +399,39 @@
                 total_grids = tile_number * grid_number;
                 var calculation_progress = 0;
                 console.log('total_grids: ' + total_grids);
-                tile_xyz_list.forEach(function (item, index) {
-                    console.log('tileindex: ' + index)
-                    $.ajax({
-                        url: xyz_roadkill_bigdata_tile_url.replace('{z}',
-                                item.z)
-                            .replace('{x}', item.x)
-                            .replace('{y}', item.y),
-                        dataType: 'json',
-                        async: true,
-                        success: function (value) {
-                            console.log(index, tile_number);
-                            tile_number -= 1;
-                            if (map.getZoom() < 14) {
-                                hexgrid.features.forEach(function (item,
-                                    index) {
-                                    calculation_progress += 1;
-                                    var density = item
-                                        .properties.density;
-                                    var points_within = turf
-                                        .pointsWithinPolygon(
-                                            value, item);
-                                    density_sum = density +=
-                                        points_within
-                                        .features.length
-                                    item.properties = {
-                                        density: density_sum
-                                    }
-                                    if (density_sum > max_grid_density) {
-                                        max_grid_density = density_sum;
+                if (map.getZoom() < 15) {
+                    tile_xyz_list.forEach(function (item, index) {
+                        $.ajax({
+                            url: xyz_roadkill_bigdata_hexbin_tile_url.replace('{z}', item.z).replace(
+                                '{x}', item.x).replace('{y}', item.y) + '&tags=zoom' + (item.z - 3),
+                            dataType: 'json',
+                            async: true,
+                            success: function (value) {
+                                value.features.forEach(function (item, index) {
+                                    if (item.geometry.type == 'Polygon') {
+                                        var bigdata_hexgrid_polygon = L.geoJSON(item, grid_style).addTo(
+                                            roadkill_bigdata_location_group);
+                                        bigdata_hexgrid_polygon.on('click', function(){
+                                            map.flyToBounds(bigdata_hexgrid_polygon.getBounds());
+                                        })
                                     }
                                 })
-
-
-                                // console.log(hexgrid);
-                                while (calculation_progress / total_grids == 1) {
-                                    console.log('calculation_progress: ' +
-                                        calculation_progress / total_grids)
-                                    setTimeout(function () {
-                                        L.geoJSON(hexgrid, grid_style).addTo(
-                                            roadkill_bigdata_location_group);
-                                        console.log('max_grid_density', max_grid_density);
-                                        map.spin(false);
-                                        heatmap_layer_loaded = false;
-                                    }, 500);
-                                    msg.dismiss();
-                                    break;
-                                }
-                            } else {
+                            }
+                        })
+                    })
+                } else {
+                    tile_xyz_list.forEach(function (item, index) {
+                        console.log('tileindex: ' + index)
+                        $.ajax({
+                            url: xyz_roadkill_bigdata_tile_url.replace('{z}',
+                                    item.z)
+                                .replace('{x}', item.x)
+                                .replace('{y}', item.y),
+                            dataType: 'json',
+                            async: true,
+                            success: function (value) {
+                                console.log(index, tile_number);
+                                tile_number -= 1;
                                 var features = value.features;
                                 features.forEach(function (item, index) {
                                     var geometry = item.geometry,
@@ -491,13 +477,65 @@
                                     roadkill_bigdata_marker.addTo(
                                         roadkill_bigdata_location_group);
                                 })
-                                msg.dismiss();
-                                map.spin(false);
                             }
+                        })
+                    })
+                }
 
-                        }
-                    });
-                });
+                // tile_xyz_list.forEach(function (item, index) {
+                //     console.log('tileindex: ' + index)
+                //     $.ajax({
+                //         url: xyz_roadkill_bigdata_tile_url.replace('{z}',
+                //                 item.z)
+                //             .replace('{x}', item.x)
+                //             .replace('{y}', item.y),
+                //         dataType: 'json',
+                //         async: true,
+                //         success: function (value) {
+                //             console.log(index, tile_number);
+                //             tile_number -= 1;
+                //             if (map.getZoom() < 14) {
+                //                 hexgrid.features.forEach(function (item,
+                //                     index) {
+                //                     calculation_progress += 1;
+                //                     var density = item
+                //                         .properties.density;
+                //                     var points_within = turf
+                //                         .pointsWithinPolygon(
+                //                             value, item);
+                //                     density_sum = density +=
+                //                         points_within
+                //                         .features.length
+                //                     item.properties = {
+                //                         density: density_sum
+                //                     }
+                //                     if (density_sum > max_grid_density) {
+                //                         max_grid_density = density_sum;
+                //                     }
+                //                 })
+
+
+                //                 // console.log(hexgrid);
+                //                 while (calculation_progress / total_grids == 1) {
+                //                     console.log('calculation_progress: ' +
+                //                         calculation_progress / total_grids)
+                //                     setTimeout(function () {
+                //                         L.geoJSON(hexgrid, grid_style).addTo(
+                //                             roadkill_bigdata_location_group);
+                //                         console.log('max_grid_density', max_grid_density);
+                //                         map.spin(false);
+                //                         heatmap_layer_loaded = false;
+                //                     }, 500);
+                //                     msg.dismiss();
+                //                     break;
+                //                 }
+                //             } else {
+                                
+                //             }
+
+                //         }
+                //     });
+                // });
 
 
             }
