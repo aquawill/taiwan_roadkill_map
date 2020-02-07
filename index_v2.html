@@ -103,7 +103,7 @@
                 }
                 map.spin(false);
                 tile_xyz_list = [];
-                roadkill_bigdata_location_group.clearLayers()
+                roadkill_bigdata_group.clearLayers()
             });
 
             var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -111,24 +111,21 @@
                 opacity: 0.8,
                 detectRetina: true,
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
+            }).setZIndex(10).addTo(map);
             var OpenTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
                 maxZoom: 17,
                 detectRetina: true,
                 attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-            });
-
+            }).setZIndex(10);
             var Esri_WorldImagery = L.tileLayer(
                 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-                });
-
+                }).setZIndex(10);
             var tile_xyz_list = []
 
-            var roadkill_hotspot_group = new L.featureGroup(),
-                animal_sign_group = new L.featureGroup(),
-                roadkill_bigdata_location_group = new L.featureGroup();
+            var roadkill_hotspot_group = new L.featureGroup().setZIndex(40),
+                animal_sign_group = new L.featureGroup().setZIndex(30),
+                roadkill_bigdata_group = new L.featureGroup().setZIndex(20);
             roadkill_hotspot_group.addTo(map);
 
             var attribution_layer = L.geoJson();
@@ -136,11 +133,11 @@
                 return '&copy; <a href="https://roadkill.tw/">台灣動物路死觀察網</a>';
             };
             attribution_layer.addTo(map);
-            roadkill_bigdata_location_group.on('add', function () {
+            roadkill_bigdata_group.on('add', function () {
                 load_bigdata();
                 heatmap_layer_opened = true;
             })
-            roadkill_bigdata_location_group.on('remove', function () {
+            roadkill_bigdata_group.on('remove', function () {
                 heatmap_layer_opened = false;
             })
 
@@ -152,7 +149,7 @@
             }, {
                 '<img src="./img/skull.png" alt="顯示路殺熱點" style="width:1em;"> 路殺熱點路段': roadkill_hotspot_group,
                 '<img src="./img/enable_animal_crossing_sign.png" alt="顯示警告標誌" style="width:1em;"> 動物警告標誌': animal_sign_group,
-                '<img src="./img/enable_heatmap_icon.png" alt="顯示路殺熱點" style="width:1em;"> 路殺歷史大數據': roadkill_bigdata_location_group,
+                '<img src="./img/enable_heatmap_icon.png" alt="顯示路殺熱點" style="width:1em;"> 路殺歷史大數據': roadkill_bigdata_group,
             }, {
                 collapsed: false,
                 hideSingleBase: true
@@ -359,7 +356,7 @@
             }
 
             function load_bigdata() {
-                roadkill_bigdata_location_group.clearLayers();
+                roadkill_bigdata_group.clearLayers();
                 var map_bounds = map.getBounds().pad(0.05);
                 var map_south_west = map_bounds.getSouthWest();
                 var map_north_east = map_bounds.getNorthEast();
@@ -394,7 +391,7 @@
                                 value.features.forEach(function (item, index) {
                                     if (item.geometry.type == 'Polygon') {
                                         var bigdata_hexgrid_polygon = L.geoJSON(item, grid_style).addTo(
-                                            roadkill_bigdata_location_group);
+                                            roadkill_bigdata_group);
                                         bigdata_hexgrid_polygon.on('click', function(){
                                             map.flyToBounds(bigdata_hexgrid_polygon.getBounds());
                                         })
@@ -459,7 +456,7 @@
                                     roadkill_bigdata_marker.bindPopup(
                                         roadkill_marker_popup);
                                     roadkill_bigdata_marker.addTo(
-                                        roadkill_bigdata_location_group);
+                                        roadkill_bigdata_group);
                                 })
                             }
                         })
@@ -505,7 +502,7 @@
                 //                         calculation_progress / total_grids)
                 //                     setTimeout(function () {
                 //                         L.geoJSON(hexgrid, grid_style).addTo(
-                //                             roadkill_bigdata_location_group);
+                //                             roadkill_bigdata_group);
                 //                         console.log('max_grid_density', max_grid_density);
                 //                         map.spin(false);
                 //                         heatmap_layer_loaded = false;
@@ -556,7 +553,7 @@
                         roadKillPopup.setLatLng(icon_location);
                         roadKillPopup.setContent(
                             '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">' +
-                            rec_type + '</th></tr><tr><td>季節</td><td>' + season +
+                            '路殺熱點：' + rec_type + '</th></tr><tr><td>季節</td><td>' + season +
                             '</td></tr><tr><td>時間</td><td>' + day_night +
                             '</td></tr><tr><td>路段</td><td>' + rt_desc +
                             '</td></tr></table>');
