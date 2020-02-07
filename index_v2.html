@@ -97,10 +97,6 @@
             });
             map.on('movestart', function () {
                 console.log('movestart');
-                // if (msg) {
-                //     msg.dismiss();
-                // }
-                // map.spin(false);
                 tile_xyz_list = [];
                 roadkill_bigdata_group.clearLayers()
             });
@@ -276,7 +272,6 @@
                         }
                         break;
                 }
-                //                console.log(type, recmd_type, dayNight, iconName);
                 return iconName
             }
 
@@ -370,15 +365,7 @@
                         density: 0
                     }
                 };
-                // var hexgrid = turf.hexGrid(bbox, cellSide, options);
-                // var grid_feature_collection = L.geoJSON(hexgrid);
                 tile_xyz_list = get_tile_xyz(map.getBounds(), map.getZoom());
-                // tile_number = tile_xyz_list.length;
-                // max_grid_density = 0;
-                // var grid_number = hexgrid.features.length;
-                // total_grids = tile_number * grid_number;
-                // var calculation_progress = 0;
-                // console.log('total_grids: ' + total_grids);
                 if (map.getZoom() < 15) {
                     tile_xyz_list.forEach(function (item, index) {
                         $.ajax({
@@ -401,7 +388,6 @@
                     })
                 } else {
                     tile_xyz_list.forEach(function (item, index) {
-                        // console.log('tileindex: ' + index)
                         $.ajax({
                             url: xyz_roadkill_bigdata_tile_url.replace('{z}',
                                     item.z)
@@ -459,63 +445,6 @@
                         })
                     })
                 }
-
-                // tile_xyz_list.forEach(function (item, index) {
-                //     console.log('tileindex: ' + index)
-                //     $.ajax({
-                //         url: xyz_roadkill_bigdata_tile_url.replace('{z}',
-                //                 item.z)
-                //             .replace('{x}', item.x)
-                //             .replace('{y}', item.y),
-                //         dataType: 'json',
-                //         async: true,
-                //         success: function (value) {
-                //             console.log(index, tile_number);
-                //             tile_number -= 1;
-                //             if (map.getZoom() < 14) {
-                //                 hexgrid.features.forEach(function (item,
-                //                     index) {
-                //                     calculation_progress += 1;
-                //                     var density = item
-                //                         .properties.density;
-                //                     var points_within = turf
-                //                         .pointsWithinPolygon(
-                //                             value, item);
-                //                     density_sum = density +=
-                //                         points_within
-                //                         .features.length
-                //                     item.properties = {
-                //                         density: density_sum
-                //                     }
-                //                     if (density_sum > max_grid_density) {
-                //                         max_grid_density = density_sum;
-                //                     }
-                //                 })
-
-
-                //                 // console.log(hexgrid);
-                //                 while (calculation_progress / total_grids == 1) {
-                //                     console.log('calculation_progress: ' +
-                //                         calculation_progress / total_grids)
-                //                     setTimeout(function () {
-                //                         L.geoJSON(hexgrid, grid_style).addTo(
-                //                             roadkill_bigdata_group);
-                //                         console.log('max_grid_density', max_grid_density);
-                //                         map.spin(false);
-                //                         heatmap_layer_loaded = false;
-                //                     }, 500);
-                //                     msg.dismiss();
-                //                     break;
-                //                 }
-                //             } else {
-                                
-                //             }
-
-                //         }
-                //     });
-                // });
-
-
             }
 
             function load_roadkill_route_layers() {
