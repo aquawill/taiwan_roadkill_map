@@ -94,7 +94,7 @@
 
             const OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                opacity: 0.8,
+                opacity: 0,
                 // detectRetina: true,
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).setZIndex(10);
@@ -154,7 +154,7 @@
                 for (var i = min.x; i <= max.x; i++) {
                     for (var j = min.y; j <= max.y; j++) {
                         const coords = new L.Point(i, j);
-                        coords.z = zoom;
+                        coords.z = parseInt(zoom);
                         coords_list.push(coords);
                     }
                 }
