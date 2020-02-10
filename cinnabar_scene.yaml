@@ -1,9 +1,9 @@
 cameras:
-  isometric:
+  perspective:
     axis:
     - 0
     - 0.1
-    type: isometric
+    type: perspective
 fonts:
   Montserrat:
   - url: fonts/Montserrat-Regular.woff

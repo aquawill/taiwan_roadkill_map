@@ -13,6 +13,7 @@
     <script src="https://code.jquery.com/jquery-3.4.0.min.js"
         integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"></script>
     <script src="./scripts/leaflet-hash.js"></script>
+    <script src="https://unpkg.com/tangram@0.15.1/dist/tangram.min.js"></script>
     <!-- <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
     <script src="./scripts/alertifyjs/alertify.min.js"></script>
     <script src="./scripts/leaflet.spin.min.js"></script>
@@ -107,6 +108,11 @@
                     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
                 }).setZIndex(10);
 
+            var tangram_cinnabar = Tangram.leafletLayer({
+                scene: 'https://aquawill.github.io/taiwan_roadkill_map/cinnabar_scene.yaml',
+                attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors'
+            });
+
             const roadkill_hotspot_group = new L.featureGroup().setZIndex(40),
                 animal_sign_group = new L.featureGroup().setZIndex(30),
                 roadkill_bigdata_group = new L.featureGroup().setZIndex(20);
@@ -127,7 +133,7 @@
 
             L.control.scale().addTo(map);
             L.control.layers({
-                "一般地圖": OpenStreetMap_Mapnik,
+                "一般地圖": tangram_cinnabar,
                 "地形圖": OpenTopoMap,
                 "衛星影像": Esri_WorldImagery,
             }, {
