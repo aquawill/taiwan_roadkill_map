@@ -97,7 +97,7 @@
                 opacity: 0.8,
                 // detectRetina: true,
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).setZIndex(10).addTo(map);
+            }).setZIndex(10);
             const OpenTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
                 maxZoom: 17,
                 // detectRetina: true,
@@ -108,10 +108,10 @@
                     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
                 }).setZIndex(10);
 
-            var tangram_cinnabar = Tangram.leafletLayer({
+            const tangram_cinnabar = Tangram.leafletLayer({
                 scene: 'https://aquawill.github.io/taiwan_roadkill_map/cinnabar_scene.yaml',
                 attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors'
-            });
+            }).setZIndex(10).addTo(map);
 
             const roadkill_hotspot_group = new L.featureGroup().setZIndex(40),
                 animal_sign_group = new L.featureGroup().setZIndex(30),
