@@ -12,6 +12,7 @@
         crossorigin=""></script>
     <script src="https://code.jquery.com/jquery-3.4.0.min.js"
         integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"></script>
+    <script src="./scripts/leaflet-hash.js"></script>
     <!-- <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
     <script src="./scripts/alertifyjs/alertify.min.js"></script>
     <script src="./scripts/leaflet.spin.min.js"></script>
@@ -88,6 +89,7 @@
                 tile_xyz_list = [];
                 roadkill_bigdata_group.clearLayers()
             });
+            var hash = new L.Hash(map);
 
             const OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
@@ -534,12 +536,12 @@
                                 lat: lat,
                                 lng: lng
                             };
-                            const properties = item.properties,
+                        const properties = item.properties,
                             owner = properties.owner,
                             sn = properties.sn,
                             target_species = properties.target_species,
                             url = properties.url.split(';')[0];
-                            const animal_crossing_sign_marker = new L.marker(icon_location, {
+                        const animal_crossing_sign_marker = new L.marker(icon_location, {
                             icon: new L.icon({
                                 iconUrl: 'https://aquawill.github.io/taiwan_roadkill_map/img/enable_animal_crossing_sign.png',
                                 iconSize: [default_icon_size, default_icon_size],
