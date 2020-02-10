@@ -97,8 +97,6 @@ scene:
     fog: '#FFFFFF'
 
 global:
-  text_font_family: FiraGO
-
   text_visible_admin: true
   icon_visible_populated_places: true
   text_visible_populated_places: true
