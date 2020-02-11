@@ -57,8 +57,10 @@
             var tile_xyz_list = [];
             var heatmap_layer_loaded = false;
             var heatmap_layer_opened = false;
-            const default_icon_size = pixelRatio === 1 ? 36 : 24;
-            const default_icon_anchor = pixelRatio === 1 ? 18 : 12;
+            // const default_icon_size = pixelRatio === 1 ? 36 : 36;
+            // const default_icon_anchor = pixelRatio === 1 ? 18 : 18;
+            const default_icon_size = 36;
+            const default_icon_anchor = 18;
             const map = L.map('map', {
                 maxZoom: 17,
                 minZoom: 6,
@@ -72,7 +74,6 @@
                 lat: 23.749408835677244,
                 lng: 121.00495296263927
             }, 8);
-            
             // const taiwan_boundary = $.getJSON('https://aquawill.github.io/taiwan_roadkill_map/assets/twn_simplified.geojson', function (value) {
             //     L.geoJSON(value, {
             //         style: {
