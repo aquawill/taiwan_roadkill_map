@@ -61,7 +61,9 @@
             const default_icon_anchor = pixelRatio === 1 ? 18 : 12;
             const map = L.map('map', {
                 maxZoom: 17,
-                minZoom: 6
+                minZoom: 6,
+                zoomSnap: 1,
+                trackResize: true
             });
             map.on('load', function () {
                 tile_xyz_list = get_tile_xyz(map.getBounds(), map.getZoom());
