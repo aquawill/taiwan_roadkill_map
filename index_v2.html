@@ -84,6 +84,7 @@
             // })
 
             map.on('moveend', function () {
+                map.setZoom(parseInt(map.getZoom()));
                 if (heatmap_layer_opened) {
                     load_bigdata();
                 }
