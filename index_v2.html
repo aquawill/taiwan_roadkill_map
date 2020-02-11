@@ -72,6 +72,7 @@
                 lat: 23.749408835677244,
                 lng: 121.00495296263927
             }, 8);
+            
             // const taiwan_boundary = $.getJSON('https://aquawill.github.io/taiwan_roadkill_map/assets/twn_simplified.geojson', function (value) {
             //     L.geoJSON(value, {
             //         style: {
@@ -84,11 +85,14 @@
             // })
 
             map.on('moveend', function () {
-                map.setZoom(Math.round(map.getZoom()));
-                if (heatmap_layer_opened) {
-                    load_bigdata();
-                }
-            });
+                console.log("movend");
+                setTimeout(function () {
+                    if (heatmap_layer_opened) {
+                        load_bigdata();
+                    } else {
+                        }
+                }, 500);
+                });
             map.on('movestart', function () {
                 tile_xyz_list = [];
                 roadkill_bigdata_group.clearLayers()
@@ -97,10 +101,10 @@
 
             const OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                opacity: 0,
+                opacity: 0.8,
                 // detectRetina: true,
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).setZIndex(10);
+            }).setZIndex(10).addTo(map);
             const OpenTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
                 maxZoom: 17,
                 // detectRetina: true,
@@ -111,10 +115,10 @@
                     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
                 }).setZIndex(10);
 
-            const tangram_cinnabar = Tangram.leafletLayer({
-                scene: 'https://aquawill.github.io/taiwan_roadkill_map/cinnabar_scene.yaml',
-                attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors'
-            }).setZIndex(10).addTo(map);
+            // const tangram_cinnabar = Tangram.leafletLayer({
+            //     scene: 'https://aquawill.github.io/taiwan_roadkill_map/cinnabar_scene.yaml',
+            //     attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors'
+            // }).setZIndex(10);
 
             const roadkill_hotspot_group = new L.featureGroup().setZIndex(40),
                 animal_sign_group = new L.featureGroup().setZIndex(30),
@@ -136,7 +140,7 @@
 
             L.control.scale().addTo(map);
             L.control.layers({
-                "一般地圖": tangram_cinnabar,
+                "一般地圖": OpenStreetMap_Mapnik,
                 "地形圖": OpenTopoMap,
                 "衛星影像": Esri_WorldImagery,
             }, {
@@ -349,19 +353,6 @@
 
             function load_bigdata() {
                 roadkill_bigdata_group.clearLayers();
-                const map_bounds = map.getBounds().pad(0.05);
-                const map_south_west = map_bounds.getSouthWest();
-                const map_north_east = map_bounds.getNorthEast();
-                const map_horizontal_distance = map.distance(map.getBounds().getSouthWest(), map.getBounds()
-                    .getSouthEast()) / 1000
-                const bbox = [map_south_west.lng, map_south_west.lat, map_north_east.lng, map_north_east.lat];
-                const cellSide = map_horizontal_distance / 40;
-                const options = {
-                    units: 'kilometers',
-                    properties: {
-                        density: 0
-                    }
-                };
                 tile_xyz_list = get_tile_xyz(map.getBounds(), map.getZoom());
                 if (map.getZoom() < heatmap_max) {
                     tile_xyz_list.forEach(function (item, index) {
