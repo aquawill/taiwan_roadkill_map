@@ -98,16 +98,16 @@
             var osm_tile = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
             var osmand_hd_tile = 'https://tile.osmand.net/hd/{z}/{x}/{y}.png';
 
-            const OpenStreetMap_Mapnik = L.tileLayer(pixelRatio === 1 ? osm_tile : osmand_hd_tile, {
+            const OpenStreetMap = L.tileLayer(pixelRatio === 1 ? osm_tile : osmand_hd_tile, {
                 maxZoom: 19,
                 opacity: 0.8,
                 // detectRetina: pixelRatio === 1 ? false : true,
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).setZIndex(10).addTo(map);
-            const OpenTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            const Esri_World_Topo_Map = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
                 maxZoom: 17,
                 // detectRetina: true,
-                attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+                attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
             }).setZIndex(10);
             const Esri_WorldImagery = L.tileLayer(
                 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -139,8 +139,8 @@
 
             L.control.scale().addTo(map);
             L.control.layers({
-                "一般地圖": OpenStreetMap_Mapnik,
-                "地形圖": OpenTopoMap,
+                "一般地圖": OpenStreetMap,
+                "地形圖": Esri_World_Topo_Map,
                 "衛星影像": Esri_WorldImagery,
             }, {
                 '<img src="./img/skull.png" alt="顯示路殺熱點" style="width:1em;"> 路殺熱點路段': roadkill_hotspot_group,
