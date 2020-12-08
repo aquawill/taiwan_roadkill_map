@@ -4,17 +4,10 @@
 <head>
     <meta name="viewport" content="initial-scale=1.0, width=device-width" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link rel="stylesheet" href="./scripts/leaflet.css"/>
+    <link rel="stylesheet" href="./scripts/leaflet.css" />
     <script src="./scripts/leaflet.js"></script>
     <script src="./scripts/jquery-3.5.0.min.js"></script>
     <script src="./scripts/leaflet-hash.js"></script>
-    <!-- <script src="https://unpkg.com/tangram@0.15.1/dist/tangram.min.js"></script> -->
-    <!-- <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
-    <script src="./scripts/alertifyjs/alertify.min.js"></script>
-    <script src="./scripts/leaflet.spin.min.js"></script>
-    <script src="./scripts/spin.min.js"></script>
-    <link rel="stylesheet" href="./scripts/alertifyjs/css/alertify.min.css" />
-    <link rel="stylesheet" href="./scripts/alertifyjs/css/themes/default.min.css" /> -->
     <style>
         html,
         body {
@@ -35,10 +28,15 @@
 <body>
     <div id="map" class="map">
         <script type="text/javascript" charset="UTF-8">
-            const he_xyz_roadkill_token = 'AJt8bGnvRgWmUd0RppoLxQA'; // https://xyz.api.here.com/token-ui/
+            const he_xyz_roadkill_token = 'AIbkXo9qRXKPUOzP2Hr4CQA'; // https://xyz.api.here.com/token-ui/
             const he_xyz_roadkill_hexbin_space_id = 'jlhTBkWX'; // roadkill hexgrid heatmap layer
-            const he_xyz_roadkill_road_space_id = 'xVHzxzsl'; // roadkill road segment geometries
-            const he_xyz_roadkill_icon_space_id = 'ppwW5xZ4'; // icon for roadkill road segments
+
+            // const he_xyz_roadkill_road_space_id = 'xVHzxzsl'; // roadkill road segment geometries
+            // const he_xyz_roadkill_icon_space_id = 'ppwW5xZ4'; // icon for roadkill road segments
+
+            const he_xyz_roadkill_road_space_id = 'xlbQ9s93'; // roadkill road segment geometries v2020
+            const he_xyz_roadkill_icon_space_id = 'fTehSnIf'; // icon for roadkill road segments v2020
+
             const he_xyz_animal_crossing_sign_space_id = '4qRA5sz4'; // icon for animal signs
             const he_xyz_roadkill_bigdata_space_id = 'DzCrr7gA'; // icon for roadkill bigdata
             const heatmap_max = 15;
@@ -48,7 +46,7 @@
             const pixelRatio = window.devicePixelRatio || 1;
             const ppi = pixelRatio === 1 ? 72 : 320
             const tile_size = pixelRatio === 1 ? 256 : 512
-            var road_Polyline_list = [];
+            // var road_Polyline_list = [];
             var tile_xyz_list = [];
             var heatmap_layer_loaded = false;
             var heatmap_layer_opened = false;
@@ -62,37 +60,49 @@
                 zoomSnap: 1,
                 trackResize: true
             });
+
             map.on('load', function () {
                 tile_xyz_list = get_tile_xyz(map.getBounds(), map.getZoom());
             });
+
             map.setView({
-                lat: 23.749408835677244,
-                lng: 121.00495296263927
+                lat: 23.816,
+                lng: 120.465
             }, 8);
-            // const taiwan_boundary = $.getJSON('https://aquawill.github.io/taiwan_roadkill_map/assets/twn_simplified.geojson', function (value) {
-            //     L.geoJSON(value, {
-            //         style: {
-            //             color: '#0032ff',
-            //             opacity: 0.3,
-            //             weight: 3,
-            //             fill: false
-            //         }
-            //     }).addTo(map);
-            // })
+
+            const taiwan_boundary = $.getJSON('https://aquawill.github.io/taiwan_roadkill_map/assets/twn_simplified.geojson', function (value) {
+                L.geoJSON(value, {
+                    style: {
+                        color: '#0032ff',
+                        opacity: 0.3,
+                        weight: 3,
+                        fill: false
+                    }
+                }).addTo(map);
+            })
+
+            // build an initial index of tiles
+            var options = {
+                maxZoom: 4,
+                baseZoom: 14,
+                maxPoints: 100,
+                debug: 1
+            };
 
             map.on('moveend', function () {
                 console.log("movend");
                 setTimeout(function () {
                     if (heatmap_layer_opened) {
                         load_bigdata();
-                    } else {
-                        }
+                    } else {}
                 }, 500);
-                });
+            });
+
             map.on('movestart', function () {
                 tile_xyz_list = [];
                 roadkill_bigdata_group.clearLayers()
             });
+
             var hash = new L.Hash(map);
 
             var osm_tile = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -101,14 +111,16 @@
             const OpenStreetMap = L.tileLayer(pixelRatio === 1 ? osm_tile : osmand_hd_tile, {
                 maxZoom: 19,
                 opacity: 0.8,
-                // detectRetina: pixelRatio === 1 ? false : true,
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).setZIndex(10).addTo(map);
-            const Esri_World_Topo_Map = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 17,
-                // detectRetina: true,
-                attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
-            }).setZIndex(10);
+            
+            const Esri_World_Topo_Map = L.tileLayer(
+                'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 17,
+                    // detectRetina: true,
+                    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
+                }).setZIndex(10);
+
             const Esri_WorldImagery = L.tileLayer(
                 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
@@ -219,53 +231,57 @@
                 return iconName
             }
 
-            function getRoadkillRouteIcon(type, recmd_type, dayNight) {
+            function getRoadkillRouteIcon(type, dayNight) {
                 var iconName;
                 switch (type) {
                     case '鳥類':
+                    case '領角鴞':
+                    case '鷺鷥':
                         if (dayNight == '晚上') {
                             iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_bird_night.svg'
                         } else {
                             iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_bird_day.svg'
                         }
                         break;
-                    case '哺乳類':
+                    case '中型哺乳類':
+                    case '水獺':
+                    case '台灣獼猴':
+                    case '貓狗':
                         if (dayNight == '晚上') {
                             iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_mammal_night.svg'
                         } else {
                             iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_mammal_day.svg'
                         }
                         break;
-                    case '兩生類':
+                    case '蛙類':
                         if (dayNight == '晚上') {
                             iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_frog_night.svg'
                         } else {
                             iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_frog_day.svg'
                         }
                         break;
-                    case '爬行類':
-                        if (recmd_type == '烏龜') {
-                            if (dayNight == '晚上') {
-                                iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_turtle_night.svg'
-                            } else {
-                                iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_turtle_day.svg'
-                            }
+                    case '龜類':
+                        if (dayNight == '晚上') {
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_turtle_night.svg'
                         } else {
-                            if (dayNight == '晚上') {
-                                iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_snake_night.svg'
-                            } else {
-                                iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_snake_day.svg'
-                            }
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_turtle_day.svg'
                         }
                         break;
-                    case '陸蟹':
+                    case '蛇類':
+                        if (dayNight == '晚上') {
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_snake_night.svg'
+                        } else {
+                            iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_snake_day.svg'
+                        }
+                        break;
+                    case '蟹類':
                         if (dayNight == '晚上') {
                             iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_crab_night.svg'
                         } else {
                             iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_crab_day.svg'
                         }
                         break;
-                    case '昆蟲':
+                    case '紫斑蝶':
                         if (dayNight == '晚上') {
                             iconName = 'https://aquawill.github.io/taiwan_roadkill_map/img/ic_butterfly_night.svg'
                         } else {
@@ -465,15 +481,16 @@
                         var properties = item.properties,
                             day_night = properties.day_night,
                             id = properties.id,
-                            rec_type = properties.rec_type,
-                            rt_desc = properties.rt_desc,
-                            rt_number = properties.rt_number,
-                            rt_type = properties.rt_type,
+                            driving_direction = properties.driving_direction,
+                            route_number = properties.route_number,
+                            route_description = properties.route_description,
+                            route_type = properties.route_type,
                             season = properties.season,
-                            type = properties.type;
+                            voice_alert_time = properties.voice_alert_time,
+                            type = properties.recommended_type;
                         var roadkill_marker = new L.marker(icon_location, {
                             icon: new L.icon({
-                                iconUrl: getRoadkillRouteIcon(type, rec_type,
+                                iconUrl: getRoadkillRouteIcon(type,
                                     day_night),
                                 iconSize: [default_icon_size, default_icon_size],
                                 iconAnchor: [default_icon_anchor, default_icon_anchor]
@@ -483,9 +500,10 @@
                         roadKillPopup.setLatLng(icon_location);
                         roadKillPopup.setContent(
                             '<table border="1" style="font-size:14px;font-family:serif;" cellpadding="0"><tr><th colspan="2">' +
-                            '路殺熱點：' + rec_type + '</th></tr><tr><td>季節</td><td>' + season +
+                            '路殺熱點：' + type + '</th></tr><tr><td>季節</td><td>' + season +
                             '</td></tr><tr><td>時間</td><td>' + day_night +
-                            '</td></tr><tr><td>路段</td><td>' + rt_desc + '</td></tr></table>');
+                            '</td></tr><tr><td>路段</td><td>' + route_description + ' - ' +
+                            driving_direction + '</td></tr></table>');
                         roadkill_marker.bindPopup(roadKillPopup);
                         roadkill_marker.addTo(roadkill_hotspot_group);
                     })
@@ -498,26 +516,14 @@
                             properties = item.properties,
                             day_night = properties.day_night,
                             id = properties.id,
-                            rec_type = properties.rec_type,
-                            rt_desc = properties.rt_desc,
-                            rt_number = properties.rt_number,
-                            rt_type = properties.rt_type,
+                            driving_direction = properties.driving_direction,
+                            route_number = properties.route_number,
+                            route_type = properties.route_type,
                             season = properties.season,
-                            type = properties.type,
-                            road_geo_list = [];
-                        for (i = 0; i < coordinates.length; i++) {
-                            const coordinate = coordinates[i];
-                            for (i = 0; i < coordinate.length; i++) {
-                                const lat_lng_pair = coordinate[i];
-                                road_geo_list.push([lat_lng_pair[1], lat_lng_pair[0]]);
-                            }
-                        }
-                        const road_Polyline = L.polyline(road_geo_list);
-                        road_Polyline.setStyle(line_styler(rt_type));
-                        road_Polyline_list.push({
-                            id: id,
-                            geometry: road_Polyline
-                        });
+                            voice_alert_time = properties.voice_alert_time,
+                            type = properties.type;
+                        const road_Polyline = L.geoJSON(geometry);
+                        road_Polyline.setStyle(line_styler(route_type));
                         road_Polyline.addTo(roadkill_hotspot_group);
                     })
                 });
